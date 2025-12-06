@@ -5,7 +5,7 @@ Tuned values for 60 FPS gameplay with responsive feel.
 """
 
 # Gravity (pixels per second squared)
-GRAVITY = 2500.0
+GRAVITY = 2000.0
 
 # Terminal velocity (max fall speed)
 MAX_FALL_SPEED = 1200.0

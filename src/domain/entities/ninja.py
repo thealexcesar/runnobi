@@ -29,8 +29,8 @@ class Ninja(IGameEntity, ICollidable, IUpdatable, IRenderable):
     HEIGHT = 84
     SLIDE_HEIGHT = 50
 
-    JUMP_VELOCITY = -800.0
-    DOUBLE_JUMP_VELOCITY = -700.0
+    JUMP_VELOCITY = -900.0
+    DOUBLE_JUMP_VELOCITY = -750.0
     DASH_SPEED_MULTIPLIER = 2.5
 
     DASH_DURATION = 3.0  # seconds
@@ -149,8 +149,17 @@ class Ninja(IGameEntity, ICollidable, IUpdatable, IRenderable):
             self._is_sliding = True
             self._state = NinjaState.SLIDING
             self._slide_timer = 0.0
+            offset = self.HEIGHT - self.SLIDE_HEIGHT  # 84 - 50 = 34
+            self._position = Position(self._position.x, self._position.y + offset)
             return True
         return False
+
+    def stop_slide(self) -> None:
+        """Stop sliding."""
+        if self._is_sliding:
+            self._is_sliding = False
+            offset = self.HEIGHT - self.SLIDE_HEIGHT  # 34
+            self._position = Position(self._position.x, self._position.y - offset)
 
     def start_dash(self) -> bool:
         """
@@ -287,16 +296,20 @@ class Ninja(IGameEntity, ICollidable, IUpdatable, IRenderable):
             if self._attack_timer >= self.ATTACK_DURATION:
                 self._is_attacking = False
 
-        # Slide timer
-        if self._is_sliding:
-            self._slide_timer += delta_time
-            if self._slide_timer >= self.SLIDE_DURATION:
-                self._is_sliding = False
+        # # Slide timer
+        # if self._is_sliding:
+        #     self._slide_timer += delta_time
+        #     if self._slide_timer >= self.SLIDE_DURATION:
+        #         self._is_sliding = False
 
     def _update_state(self) -> None:
         """Update state machine based on current conditions."""
         if self._state == NinjaState.DEAD:
             return
+
+        # Auto-stop slide if in air
+        if self._is_sliding and not self._on_ground:
+            self.stop_slide()
 
         # Priority: DASHING > ATTACKING > SLIDING > JUMPING > RUNNING > IDLE
         if self._is_dashing:
@@ -305,6 +318,7 @@ class Ninja(IGameEntity, ICollidable, IUpdatable, IRenderable):
             self._state = NinjaState.ATTACKING
         elif self._is_sliding:
             self._state = NinjaState.SLIDING
+
         elif not self._on_ground:
             self._state = NinjaState.JUMPING
         elif abs(self._velocity.vx) > 0.1:
