@@ -27,34 +27,35 @@ class NinjaSpriteLoader:
 
     def _load_sprites(self):
         animations = {
-            'idle': 'adventurer-idle-{:02d}.png',
-            'run': 'adventurer-run-{:02d}.png',
-            'jump': 'adventurer-jump-{:02d}.png',
-            'slide': 'adventurer-slide-{:02d}.png',
-            'attack': 'adventurer-attack1-{:02d}.png',
-            'dash': 'adventurer-smrslt-{:02d}.png',
-            'die': 'adventurer-die-{:02d}.png',
+            'idle': 'adventurer-idle-',
+            'run': 'adventurer-run-',
+            'jump': 'adventurer-jump-',
+            'slide': 'adventurer-slide-',
+            'attack': 'adventurer-attack1-',
+            'attack2': 'adventurer-attack2-',
+            'attack3': 'adventurer-attack3-',
+            'dash': 'adventurer-smrslt-',
+            'die': 'adventurer-die-',
+            'crouch': 'adventurer-crouch-',
+            'hurt': 'adventurer-hurt-',
+            'stand': 'adventurer-stand-',
         }
 
-        max_frames = {
-            'idle': 4,
-            'run': 6,
-            'jump': 4,
-            'slide': 2,
-            'attack': 5,
-            'dash': 4,
-            'die': 7,
-        }
-
-        for anim_name, pattern in animations.items():
+        for anim_name, prefix in animations.items():
             frames = []
-            for i in range(max_frames.get(anim_name, 10)):
-                filename = pattern.format(i)
+            frame_index = 0
+
+            while True:
+                filename = f"{prefix}{frame_index:02d}.png"
                 path = os.path.join(self.base_path, filename)
 
                 if os.path.exists(path):
-                    sprite = pygame.image.load(path).convert_alpha()
-                    frames.append(sprite)
+                    try:
+                        sprite = pygame.image.load(path).convert_alpha()
+                        frames.append(sprite)
+                        frame_index += 1
+                    except:
+                        break
                 else:
                     break
 

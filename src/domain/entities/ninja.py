@@ -303,25 +303,21 @@ class Ninja(IGameEntity, ICollidable, IUpdatable, IRenderable):
         #         self._is_sliding = False
 
     def _update_state(self) -> None:
-        """Update state machine based on current conditions."""
         if self._state == NinjaState.DEAD:
             return
 
-        # Auto-stop slide if in air
         if self._is_sliding and not self._on_ground:
             self.stop_slide()
 
-        # Priority: DASHING > ATTACKING > SLIDING > JUMPING > RUNNING > IDLE
         if self._is_dashing:
             self._state = NinjaState.DASHING
         elif self._is_attacking:
             self._state = NinjaState.ATTACKING
         elif self._is_sliding:
             self._state = NinjaState.SLIDING
-
         elif not self._on_ground:
             self._state = NinjaState.JUMPING
-        elif abs(self._velocity.vx) > 0.1:
+        elif self._on_ground:
             self._state = NinjaState.RUNNING
         else:
             self._state = NinjaState.IDLE
@@ -385,20 +381,20 @@ class Ninja(IGameEntity, ICollidable, IUpdatable, IRenderable):
         from ...infrastructure.rendering.sprite_placeholder import PlaceholderSprites
 
         if self._state == NinjaState.IDLE:
-            return PlaceholderSprites.create_ninja_idle(frame=self._current_frame % 4)
+            return PlaceholderSprites.create_ninja_idle(frame=self._current_frame)
         elif self._state == NinjaState.RUNNING:
-            return PlaceholderSprites.create_ninja_run(frame=self._current_frame % 6)
+            return PlaceholderSprites.create_ninja_run(frame=self._current_frame)
         elif self._state == NinjaState.JUMPING:
             return PlaceholderSprites.create_ninja_jump(
-                frame=self._current_frame % 4,
+                frame=self._current_frame,
                 is_double_jump=self._has_used_double_jump
             )
         elif self._state == NinjaState.SLIDING:
-            return PlaceholderSprites.create_ninja_slide(frame=self._current_frame % 2)
+            return PlaceholderSprites.create_ninja_slide(frame=self._current_frame)
         elif self._state == NinjaState.ATTACKING:
-            return PlaceholderSprites.create_ninja_attack(frame=self._current_frame % 5)
+            return PlaceholderSprites.create_ninja_attack(frame=self._current_frame)
         elif self._state == NinjaState.DASHING:
-            return PlaceholderSprites.create_ninja_dash(frame=self._current_frame % 4)
+            return PlaceholderSprites.create_ninja_dash(frame=self._current_frame)
         else:
             return PlaceholderSprites.create_ninja_idle(frame=0)
 

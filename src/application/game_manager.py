@@ -7,6 +7,7 @@ import pygame
 import random
 from typing import List
 
+from infrastructure.rendering.sprite_placeholder import PlaceholderSprites
 from src.domain.entities.ninja import Ninja
 from src.domain.entities.obstacle import Obstacle
 from src.domain.entities.collectible import Collectible
@@ -48,7 +49,7 @@ class GameManager:
 
         self.ninja = Ninja(
             start_x=200,
-            start_y=self.GROUND_Y - Ninja.HEIGHT,
+            start_y=self.GROUND_Y - PlaceholderSprites.HEIGHT,
             ground_y=self.GROUND_Y
         )
         self.obstacles: List[Obstacle] = []
@@ -315,7 +316,7 @@ class GameManager:
         """Restart game from beginning."""
         self.ninja = Ninja(
             start_x=200,
-            start_y=self.GROUND_Y - Ninja.HEIGHT,
+            start_y=self.GROUND_Y - PlaceholderSprites.HEIGHT,
             ground_y=self.GROUND_Y
         )
         self.obstacles.clear()
