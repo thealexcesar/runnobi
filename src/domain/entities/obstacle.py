@@ -57,7 +57,6 @@ class Obstacle(IGameEntity, ICollidable, IUpdatable, IRenderable, ABC):
         """Deactivate obstacle (for object pooling)."""
         self._active = False
 
-    # ICollidable implementation
 
     @abstractmethod
     def on_collision(self, other: IGameEntity) -> None:
