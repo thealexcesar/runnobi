@@ -114,6 +114,7 @@ class GameManager:
             if not collectible.is_active():
                 self.collectibles.remove(collectible)
 
+        self._handle_combat()
         self._check_collisions()
         self._update_spawning(delta_time)
 
@@ -137,10 +138,8 @@ class GameManager:
         if self.input.is_action_just_pressed(InputAction.JUMP):
             self.ninja.jump()
 
-        if self.input.is_action_pressed(InputAction.SLIDE):
-            self.ninja.start_slide()
-        else:
-            self.ninja.stop_slide()
+        if self.input.is_action_just_pressed(InputAction.SLIDE):
+            self.ninja.start_dash()
 
         if self.input.is_action_just_pressed(InputAction.DASH):
             self.ninja.start_dash()
@@ -169,7 +168,7 @@ class GameManager:
             self.spawn_timer = 0.0
 
             if random.random() < 0.8:
-                obstacle_type = random.choice(['spike', 'barrier', 'low_barrier', 'crate'])
+                obstacle_type = random.choice(['spike', 'barrier', 'crate'])
                 obstacle = ObstacleFactory.create(
                     obstacle_type,
                     self.SCREEN_WIDTH + 50,
@@ -186,6 +185,29 @@ class GameManager:
                     self.scroll_speed
                 )
                 self.collectibles.append(coin)
+
+    def _handle_combat(self) -> None:
+        """Handle combat when ninja attacks."""
+        if not self.ninja._is_attacking:
+            return
+
+        ninja_pos = self.ninja.get_position()
+        attack_range = 80
+
+        for obstacle in self.obstacles[:]:
+            if not obstacle.is_active():
+                continue
+
+            from src.domain.entities.breakable_crate import BreakableCrate
+            if not isinstance(obstacle, BreakableCrate):
+                continue
+
+            obs_pos = obstacle.get_position()
+            distance = abs(obs_pos.x - ninja_pos.x)
+
+            if distance < attack_range:
+                obstacle.deactivate()
+                self.ninja.add_score(5)
 
     def _render(self) -> None:
         """Render everything to screen."""

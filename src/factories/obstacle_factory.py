@@ -7,7 +7,6 @@ from typing import Literal
 from ..domain.entities.obstacle import Obstacle
 from ..domain.entities.spike import Spike
 from ..domain.entities.barrier import Barrier
-from ..domain.entities.low_barrier import LowBarrier
 from ..domain.entities.breakable_crate import BreakableCrate
 
 
@@ -39,8 +38,6 @@ class ObstacleFactory:
             return Spike(x, ground_y - Spike.HEIGHT, scroll_speed)
         elif obstacle_type == 'barrier':
             return Barrier(x, ground_y - Barrier.HEIGHT, scroll_speed)
-        elif obstacle_type == 'low_barrier':
-            return LowBarrier(x, ground_y - 120, scroll_speed)
         elif obstacle_type == 'crate':
             return BreakableCrate(x, ground_y - BreakableCrate.HEIGHT, scroll_speed)
         else:

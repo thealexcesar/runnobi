@@ -380,24 +380,27 @@ class Ninja(IGameEntity, ICollidable, IUpdatable, IRenderable):
         Returns:
             Sprite surface to render
         """
-        # Import here to avoid circular dependency
         from ...infrastructure.rendering.sprite_placeholder import PlaceholderSprites
 
-        # Return sprite based on state
+        from ...infrastructure.rendering.sprite_placeholder import PlaceholderSprites
+
         if self._state == NinjaState.IDLE:
-            return PlaceholderSprites.create_ninja_idle()
+            return PlaceholderSprites.create_ninja_idle(frame=self._current_frame % 4)
         elif self._state == NinjaState.RUNNING:
-            return PlaceholderSprites.create_ninja_run(self._current_frame % 2)
+            return PlaceholderSprites.create_ninja_run(frame=self._current_frame % 6)
         elif self._state == NinjaState.JUMPING:
-            return PlaceholderSprites.create_ninja_jump()
+            return PlaceholderSprites.create_ninja_jump(
+                frame=self._current_frame % 4,
+                is_double_jump=self._has_used_double_jump
+            )
         elif self._state == NinjaState.SLIDING:
-            return PlaceholderSprites.create_ninja_slide()
+            return PlaceholderSprites.create_ninja_slide(frame=self._current_frame % 2)
         elif self._state == NinjaState.ATTACKING:
-            return PlaceholderSprites.create_ninja_attack()
+            return PlaceholderSprites.create_ninja_attack(frame=self._current_frame % 5)
         elif self._state == NinjaState.DASHING:
-            return PlaceholderSprites.create_ninja_dash()
+            return PlaceholderSprites.create_ninja_dash(frame=self._current_frame % 4)
         else:
-            return PlaceholderSprites.create_ninja_idle()
+            return PlaceholderSprites.create_ninja_idle(frame=0)
 
     def get_render_position(self) -> Position:
         """
