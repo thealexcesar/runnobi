@@ -40,8 +40,7 @@ class ObstacleFactory:
         elif obstacle_type == 'barrier':
             return Barrier(x, ground_y - Barrier.HEIGHT, scroll_speed)
         elif obstacle_type == 'low_barrier':
-            # Low barrier is elevated above ground
-            return LowBarrier(x, ground_y - 100, scroll_speed)
+            return LowBarrier(x, ground_y - 120, scroll_speed)
         elif obstacle_type == 'crate':
             return BreakableCrate(x, ground_y - BreakableCrate.HEIGHT, scroll_speed)
         else:
