@@ -148,7 +148,25 @@ runnobi/
 
 ### Running Tests
 
-Currently, the game doesn't have automated tests. Manual testing can be done by running the game.
+The project includes a comprehensive test suite that validates all game mechanics:
+
+```bash
+# Run the test suite
+python test_game.py
+```
+
+The test suite covers:
+- Player abilities (jump, slide, katana, shuriken, shadow dash)
+- Entity creation (obstacles, enemies, coins)
+- Game mechanics (speed progression, collision detection)
+- Coin collection and scoring
+
+You can also run the demo script to see the game in action:
+
+```bash
+# Run the interactive demo
+python demo.py
+```
 
 ## License
 
