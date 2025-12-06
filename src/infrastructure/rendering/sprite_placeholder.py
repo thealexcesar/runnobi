@@ -8,10 +8,16 @@ _ninja_loader = None
 def _get_ninja_loader():
     global _ninja_loader
     if _ninja_loader is None:
-        from .sprite_loader import NinjaSpriteLoader
-        _ninja_loader = NinjaSpriteLoader()
+        try:
+            from .sprite_loader import NinjaSpriteLoader
+            _ninja_loader = NinjaSpriteLoader()
+            if not _ninja_loader.has_sprites():
+                _ninja_loader = False
+        except Exception as e:
+            print(f"Sprite loader error: {e}")
+            _ninja_loader = False
 
-    return _ninja_loader
+    return _ninja_loader if _ninja_loader else None
 
 
 class PlaceholderSprites:
