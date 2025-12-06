@@ -1,0 +1,64 @@
+"""Constants and configuration for Runnobi game."""
+
+# Screen settings
+SCREEN_WIDTH = 1200
+SCREEN_HEIGHT = 600
+FPS = 60
+
+# Colors
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+RED = (220, 50, 50)
+GREEN = (50, 220, 50)
+BLUE = (50, 50, 220)
+YELLOW = (255, 215, 0)
+PURPLE = (138, 43, 226)
+GRAY = (128, 128, 128)
+DARK_GRAY = (64, 64, 64)
+
+# Player settings
+PLAYER_WIDTH = 50
+PLAYER_HEIGHT = 80
+PLAYER_START_X = 150
+GROUND_Y = 450
+GRAVITY = 1.2
+JUMP_STRENGTH = -20
+SLIDE_DURATION = 30  # frames
+
+# Movement speeds
+INITIAL_GAME_SPEED = 8
+MAX_GAME_SPEED = 20
+SPEED_INCREMENT = 0.001  # Per frame
+
+# Combat settings
+KATANA_RANGE = 100
+KATANA_COOLDOWN = 20  # frames
+SHURIKEN_SPEED = 15
+SHURIKEN_COOLDOWN = 30  # frames
+SHADOW_DASH_DISTANCE = 200
+SHADOW_DASH_DURATION = 10  # frames
+SHADOW_DASH_COOLDOWN = 180  # frames (3 seconds at 60 FPS)
+
+# Obstacle settings
+OBSTACLE_MIN_GAP = 400
+OBSTACLE_MAX_GAP = 700
+OBSTACLE_WIDTH_MIN = 30
+OBSTACLE_WIDTH_MAX = 80
+OBSTACLE_HEIGHT_MIN = 60
+OBSTACLE_HEIGHT_MAX = 120
+
+# Enemy settings
+ENEMY_WIDTH = 40
+ENEMY_HEIGHT = 60
+ENEMY_SPAWN_CHANCE = 0.01  # Per frame
+ENEMY_SPEED_VARIATION = 3
+
+# Coin settings
+COIN_SIZE = 25
+COIN_SPAWN_CHANCE = 0.02  # Per frame
+COIN_VALUE = 10
+
+# Difficulty scaling
+SPEED_MILESTONE_1 = 60  # 1 minute
+SPEED_MILESTONE_2 = 180  # 3 minutes
+SPEED_MILESTONE_3 = 300  # 5 minutes
