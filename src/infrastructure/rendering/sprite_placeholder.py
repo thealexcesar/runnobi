@@ -1,253 +1,293 @@
 """
-Placeholder sprite system using pygame primitives.
+Sprite placeholder system with real sprite loading and scaling.
 
-Temporary sprites using shapes that match exact dimensions of final sprites.
-Allows immediate development without asset dependencies.
+Loads sprites from individual PNG files and applies 1.5x scaling
+for better visibility. Falls back to colored rectangles if sprites missing.
 """
 import pygame
-from typing import Dict
+from typing import Optional
+
+
+# Global sprite loader instance (lazy loaded)
+_ninja_loader = None
+
+# Sprite scaling factor for better visibility
+SPRITE_SCALE = 1.5
+
+
+def _get_ninja_loader():
+    """
+    Get or create ninja sprite loader instance.
+
+    Lazy initialization pattern - loader created on first use.
+    """
+    global _ninja_loader
+    if _ninja_loader is None:
+        try:
+            from .sprite_loader import NinjaSpriteLoader
+            _ninja_loader = NinjaSpriteLoader()
+            if not _ninja_loader.has_sprites():
+                _ninja_loader = False
+        except Exception as e:
+            print(f"Sprite loader error: {e}")
+            _ninja_loader = False
+
+    return _ninja_loader if _ninja_loader else None
 
 
 class PlaceholderSprites:
-    """Generates placeholder sprites using pygame drawing primitives."""
-    NINJA_BODY = (30, 30, 40)
+    """
+    Sprite management with scaling and fallback system.
+
+    Attempts to load real sprites from PNG files, scales them up for
+    better visibility, and falls back to colored rectangles if missing.
+
+    Follows Proxy pattern: provides interface to sprite loading system.
+    """
+
+    # Fallback colors
+    NINJA_COLOR = (30, 30, 40)
     NINJA_SCARF = (220, 50, 50)
-    OBSTACLE_COLOR = (100, 60, 40)
-    SPIKE_COLOR = (150, 150, 150)
-    COIN_COLOR = (255, 215, 0)
-    SHURIKEN_COLOR = (200, 200, 210)
-    BREAKABLE_COLOR = (139, 90, 43)
+    NINJA_WIDTH = 90
+    NINJA_HEIGHT = int(NINJA_WIDTH * 1.5)
 
     @staticmethod
-    def create_ninja_idle(width: int = 56, height: int = 84) -> pygame.Surface:
-        """Create ninja idle sprite placeholder."""
-        surface = pygame.Surface((width, height), pygame.SRCALPHA)
-
-        head_radius = int(width * 0.25)
-        head_y = int(height * 0.15)
-        pygame.draw.circle(surface, PlaceholderSprites.NINJA_BODY, (width // 2, head_y), head_radius)
-
-        eye_y = head_y - 2
-        pygame.draw.circle(surface, (255, 255, 255), (width // 2 - 6, eye_y), 3)
-        pygame.draw.circle(surface, (255, 255, 255), (width // 2 + 6, eye_y), 3)
-
-        body_rect = pygame.Rect(width // 4, int(height * 0.28), width // 2, int(height * 0.5))
-        pygame.draw.rect(surface, PlaceholderSprites.NINJA_BODY, body_rect, border_radius=4)
-
-        leg_width = width // 5
-        leg_height = int(height * 0.22)
-        left_leg = pygame.Rect(width // 3 - 5, int(height * 0.78), leg_width, leg_height)
-        right_leg = pygame.Rect(width // 2 + 5, int(height * 0.78), leg_width, leg_height)
-        pygame.draw.rect(surface, PlaceholderSprites.NINJA_BODY, left_leg, border_radius=3)
-        pygame.draw.rect(surface, PlaceholderSprites.NINJA_BODY, right_leg, border_radius=3)
-
-        scarf_points = [(width // 2, int(height * 0.25)), (width - 5, int(height * 0.35)),
-                        (width // 2 + 5, int(height * 0.4))]
-        pygame.draw.polygon(surface, PlaceholderSprites.NINJA_SCARF, scarf_points)
-
-        return surface
-
-    @staticmethod
-    def create_ninja_run(width: int = 56, height: int = 84, frame: int = 0) -> pygame.Surface:
-        """Create ninja running animation frame."""
-        surface = pygame.Surface((width, height), pygame.SRCALPHA)
-        base = PlaceholderSprites.create_ninja_idle(width, height)
-        surface.blit(base, (0, 0))
-
-        offset = (frame % 2) * 2 - 1
-        scarf_points = [(width // 2, int(height * 0.25)), (width - 8 - offset * 3, int(height * 0.30)),
-                        (width - 5 - offset * 5, int(height * 0.38))]
-        pygame.draw.polygon(surface, PlaceholderSprites.NINJA_SCARF, scarf_points)
-
-        return surface
-
-    @staticmethod
-    def create_ninja_jump(width: int = 56, height: int = 84) -> pygame.Surface:
-        """Create ninja jumping sprite."""
-        surface = pygame.Surface((width, height), pygame.SRCALPHA)
-
-        head_radius = int(width * 0.25)
-        head_y = int(height * 0.2)
-        pygame.draw.circle(surface, PlaceholderSprites.NINJA_BODY, (width // 2, head_y), head_radius)
-        pygame.draw.circle(surface, (255, 255, 255), (width // 2 - 6, head_y - 2), 3)
-        pygame.draw.circle(surface, (255, 255, 255), (width // 2 + 6, head_y - 2), 3)
-
-        body_rect = pygame.Rect(width // 4, int(height * 0.35), width // 2, int(height * 0.45))
-        pygame.draw.rect(surface, PlaceholderSprites.NINJA_BODY, body_rect, border_radius=4)
-
-        pygame.draw.circle(surface, PlaceholderSprites.NINJA_BODY, (width // 3, int(height * 0.85)), 8)
-        pygame.draw.circle(surface, PlaceholderSprites.NINJA_BODY, (2 * width // 3, int(height * 0.82)), 8)
-
-        scarf_points = [(width // 2, int(height * 0.3)), (width - 5, int(height * 0.2)),
-                        (width - 8, int(height * 0.28))]
-        pygame.draw.polygon(surface, PlaceholderSprites.NINJA_SCARF, scarf_points)
-
-        return surface
-
-    @staticmethod
-    def create_ninja_slide(width: int = 56, height: int = 50) -> pygame.Surface:
-        """Create ninja sliding sprite (reduced height hitbox)."""
-        surface = pygame.Surface((width, height), pygame.SRCALPHA)
-
-        pygame.draw.circle(surface, PlaceholderSprites.NINJA_BODY, (width // 3, height // 3), 10)
-        pygame.draw.circle(surface, (255, 255, 255), (width // 3 - 4, height // 3 - 2), 2)
-        pygame.draw.circle(surface, (255, 255, 255), (width // 3 + 4, height // 3 - 2), 2)
-
-        body_rect = pygame.Rect(width // 4, height // 2, int(width * 0.6), height // 3)
-        pygame.draw.rect(surface, PlaceholderSprites.NINJA_BODY, body_rect, border_radius=4)
-
-        scarf_points = [(width // 4, height // 2), (5, height // 3), (8, height // 2 + 5)]
-        pygame.draw.polygon(surface, PlaceholderSprites.NINJA_SCARF, scarf_points)
-
-        return surface
-
-    @staticmethod
-    def create_ninja_attack(width: int = 70, height: int = 84) -> pygame.Surface:
-        """Create ninja attack sprite with katana."""
-        surface = pygame.Surface((width, height), pygame.SRCALPHA)
-
-        base = PlaceholderSprites.create_ninja_idle(56, height)
-        surface.blit(base, (0, 0))
-
-        sword_start = (50, int(height * 0.4))
-        sword_end = (width - 5, int(height * 0.3))
-        pygame.draw.line(surface, (200, 200, 220), sword_start, sword_end, 3)
-        pygame.draw.circle(surface, (255, 255, 100), sword_end, 4)
-
-        return surface
-
-    @staticmethod
-    def create_ninja_dash(width: int = 56, height: int = 84) -> pygame.Surface:
-        """Create ninja dash sprite with transparency."""
-        surface = PlaceholderSprites.create_ninja_idle(width, height)
-        surface.set_alpha(180)
-        return surface
-
-    @staticmethod
-    def create_obstacle_spike(width: int = 40, height: int = 50) -> pygame.Surface:
-        """Create spike obstacle."""
-        surface = pygame.Surface((width, height), pygame.SRCALPHA)
-        points = [(width // 2, 5), (width - 5, height - 5), (5, height - 5)]
-        pygame.draw.polygon(surface, PlaceholderSprites.SPIKE_COLOR, points)
-        pygame.draw.polygon(surface, (100, 100, 100), points, 2)
-        return surface
-
-    @staticmethod
-    def create_obstacle_barrier(width: int = 56, height: int = 80) -> pygame.Surface:
-        """Create barrier obstacle."""
-        surface = pygame.Surface((width, height), pygame.SRCALPHA)
-        pygame.draw.rect(surface, PlaceholderSprites.OBSTACLE_COLOR, (10, 0, width - 20, height), border_radius=4)
-        for i in range(0, height, 15):
-            pygame.draw.line(surface, (80, 50, 30), (12, i), (width - 12, i), 1)
-        return surface
-
-    @staticmethod
-    def create_obstacle_low_barrier(width: int = 56, height: int = 40) -> pygame.Surface:
-        """Create low barrier obstacle (must slide under)."""
-        surface = pygame.Surface((width, height), pygame.SRCALPHA)
-        pygame.draw.rect(surface, PlaceholderSprites.OBSTACLE_COLOR, (10, 0, width - 20, height), border_radius=4)
-        for i in range(0, height, 12):
-            pygame.draw.line(surface, (80, 50, 30), (12, i), (width - 12, i), 1)
-        return surface
-
-    @staticmethod
-    def create_breakable_crate(width: int = 56, height: int = 56) -> pygame.Surface:
-        """Create breakable crate."""
-        surface = pygame.Surface((width, height), pygame.SRCALPHA)
-        pygame.draw.rect(surface, PlaceholderSprites.BREAKABLE_COLOR, (5, 5, width - 10, height - 10), border_radius=3)
-        pygame.draw.line(surface, (80, 50, 20), (15, 15), (width - 15, height - 15), 3)
-        pygame.draw.line(surface, (80, 50, 20), (width - 15, 15), (15, height - 15), 3)
-        return surface
-
-    @staticmethod
-    def create_coin(radius: int = 12) -> pygame.Surface:
-        """Create coin collectible."""
-        size = radius * 2 + 4
-        surface = pygame.Surface((size, size), pygame.SRCALPHA)
-        center = (size // 2, size // 2)
-        pygame.draw.circle(surface, PlaceholderSprites.COIN_COLOR, center, radius)
-        pygame.draw.circle(surface, (255, 235, 100), center, radius - 3)
-        pygame.draw.circle(surface, PlaceholderSprites.COIN_COLOR, center, radius - 6)
-        return surface
-
-    @staticmethod
-    def create_shuriken(size: int = 24) -> pygame.Surface:
-        """Create shuriken collectible/projectile."""
-        surface = pygame.Surface((size, size), pygame.SRCALPHA)
-        center = (size // 2, size // 2)
-        points = []
-        for i in range(8):
-            angle = i * 45
-            radius = (size // 2 - 2) if i % 2 == 0 else (size // 4)
-            x = center[0] + int(radius * pygame.math.Vector2(1, 0).rotate(angle).x)
-            y = center[1] + int(radius * pygame.math.Vector2(1, 0).rotate(angle).y)
-            points.append((x, y))
-        pygame.draw.polygon(surface, PlaceholderSprites.SHURIKEN_COLOR, points)
-        pygame.draw.circle(surface, (150, 150, 160), center, 4)
-        return surface
-
-    @staticmethod
-    def create_shadow_orb(radius: int = 16) -> pygame.Surface:
-        """Create shadow orb collectible."""
-        size = radius * 2 + 4
-        surface = pygame.Surface((size, size), pygame.SRCALPHA)
-        center = (size // 2, size // 2)
-        pygame.draw.circle(surface, (100, 50, 150), center, radius)
-        pygame.draw.circle(surface, (150, 100, 200), center, radius - 4)
-        pygame.draw.circle(surface, (200, 150, 255), center, radius - 8)
-        return surface
-
-    @staticmethod
-    def create_background_layer(width: int, height: int, layer: int) -> pygame.Surface:
+    def _get_real_sprite(animation: str, frame: int, width: int, height: int) -> Optional[pygame.Surface]:
         """
-        Create parallax background layer placeholder.
+        Load and scale real sprite from files.
 
         Args:
-            width: Layer width
-            height: Layer height
-            layer: Layer number (0=far, 3=near)
+            animation: Animation name (idle, run, jump, etc.)
+            frame: Frame number
+            width: Target width after scaling
+            height: Target height after scaling
+
+        Returns:
+            Scaled sprite surface or None if not found
         """
-        surface = pygame.Surface((width, height))
+        loader = _get_ninja_loader()
+        if loader:
+            sprite = loader.get_sprite(animation, frame)
+            if sprite:
+                # Scale sprite for better visibility
+                return pygame.transform.scale(sprite, (width, height))
+        return None
 
-        if layer == 0:
-            for y in range(height):
-                color_value = int(140 + (y / height) * 60)
-                color = (color_value, color_value + 40, color_value + 60)
-                pygame.draw.line(surface, color, (0, y), (width, y))
-        elif layer == 1:
-            surface.fill((100, 120, 140))
-            for i in range(0, width, 200):
-                points = [(i, height), (i + 100, height // 2), (i + 200, height)]
-                pygame.draw.polygon(surface, (80, 90, 110), points)
-        elif layer == 2:
-            surface.fill((60, 80, 100))
-            surface.set_alpha(180)
-            for i in range(0, width, 150):
-                pygame.draw.rect(surface, (40, 60, 40), (i + 60, height - 100, 30, 100))
-                pygame.draw.circle(surface, (50, 80, 50), (i + 75, height - 100), 40)
-        else:
-            surface.fill((40, 60, 40))
+    @staticmethod
+    def _create_fallback(width: int, height: int) -> pygame.Surface:
+        """
+        Create fallback colored rectangle.
 
-        return surface
+        Args:
+            width: Rectangle width
+            height: Rectangle height
 
+        Returns:
+            Colored rectangle surface
+        """
+        surf = pygame.Surface((width, height), pygame.SRCALPHA)
+        pygame.draw.rect(surf, (255, 0, 0), (0, 0, width, height))
+        return surf
 
-class SpriteCache:
-    """
-    Cache for generated placeholder sprites.
+    # === Ninja Sprites (Scaled 1.5x) ===
 
-    Implements simple caching to improve performance.
-    """
+    @staticmethod
+    def create_ninja_idle(width: int = NINJA_WIDTH, height: int = NINJA_HEIGHT, frame: int = 0) -> pygame.Surface:
+        """
+        Create ninja idle sprite.
 
-    def __init__(self):
-        """Initialize empty sprite cache."""
-        self._cache: Dict[str, pygame.Surface] = {}
+        Args:
+            width: Sprite width (default 84 = 56 * 1.5)
+            height: Sprite height (default NINJA_HEIGHT = 84 * 1.5)
+            frame: Animation frame
 
-    def get_or_create(self, key: str, creator_func, *args, **kwargs) -> pygame.Surface:
-        """Get sprite from cache or create and cache it."""
-        if key not in self._cache:
-            self._cache[key] = creator_func(*args, **kwargs)
-        return self._cache[key]
+        Returns:
+            Idle animation sprite
+        """
+        sprite = PlaceholderSprites._get_real_sprite('idle', frame, width, height)
+        return sprite if sprite else PlaceholderSprites._create_fallback(width, height)
 
-    def clear(self) -> None:
-        """Clear all cached sprites."""
-        self._cache.clear()
+    @staticmethod
+    def create_ninja_run(width: int = NINJA_WIDTH, height: int = NINJA_HEIGHT, frame: int = 0) -> pygame.Surface:
+        """
+        Create ninja running sprite.
+
+        Returns:
+            Running animation sprite
+        """
+        sprite = PlaceholderSprites._get_real_sprite('run', frame, width, height)
+        return sprite if sprite else PlaceholderSprites._create_fallback(width, height)
+
+    @staticmethod
+    def create_ninja_jump(width: int = NINJA_WIDTH, height: int = NINJA_HEIGHT, frame: int = 0) -> pygame.Surface:
+        """
+        Create ninja jumping sprite (first jump).
+
+        Returns:
+            Jump animation sprite
+        """
+        sprite = PlaceholderSprites._get_real_sprite('jump', frame, width, height)
+        return sprite if sprite else PlaceholderSprites._create_fallback(width, height)
+
+    @staticmethod
+    def create_ninja_somersault(width: int = NINJA_WIDTH, height: int = NINJA_HEIGHT, frame: int = 0) -> pygame.Surface:
+        """
+        Create ninja somersault sprite (second jump).
+
+        Uses 'adventurer-smrslt-' animation for double jump.
+
+        Returns:
+            Somersault animation sprite
+        """
+        # Use smrslt animation for second jump
+        sprite = PlaceholderSprites._get_real_sprite('smrslt', frame, width, height)
+        if not sprite:
+            # Try alternate name
+            sprite = PlaceholderSprites._get_real_sprite('dash', frame, width, height)
+        return sprite if sprite else PlaceholderSprites._create_fallback(width, height)
+
+    @staticmethod
+    def create_ninja_crouch(width: int = NINJA_WIDTH, height: int = 75, frame: int = 0) -> pygame.Surface:
+        """
+        Create ninja crouching sprite.
+
+        Uses 'adventurer-stand-' animation (frames 0-5).
+
+        Args:
+            width: Sprite width
+            height: Sprite height
+            frame: Animation frame (0-5)
+
+        Returns:
+            Crouching animation sprite
+        """
+        sprite = PlaceholderSprites._get_real_sprite('stand', frame, width, height)
+        return sprite if sprite else PlaceholderSprites._create_fallback(width, height)
+
+    @staticmethod
+    def create_ninja_attack(width: int = NINJA_WIDTH, height: int = NINJA_HEIGHT, frame: int = 0) -> pygame.Surface:
+        """
+        Create ninja attack sprite.
+
+        Uses 'adventurer-attack1-' animation.
+
+        Args:
+            width: Sprite width (wider for sword swing)
+            height: Sprite height
+
+        Returns:
+            Attack animation sprite
+        """
+        # Try attack1 first (primary attack animation)
+        sprite = PlaceholderSprites._get_real_sprite('attack', frame, width, height)
+        if not sprite:
+            sprite = PlaceholderSprites._get_real_sprite('attack1', frame, width, height)
+        return sprite if sprite else PlaceholderSprites._create_fallback(width, height)
+
+    # === Obstacle Sprites (Scaled 1.5x) ===
+
+    @staticmethod
+    def create_obstacle_spike(width: int = 60, height: int = 75) -> pygame.Surface:
+        """Create spike obstacle sprite (3 sharp metal spikes)."""
+        surf = pygame.Surface((width, height), pygame.SRCALPHA)
+        spike_width = width // 3
+        for i in range(3):
+            x_offset = i * spike_width
+            points = [
+                (x_offset + spike_width // 2, 0),
+                (x_offset + spike_width - 2, height - 5),
+                (x_offset + 2, height - 5)
+            ]
+            pygame.draw.polygon(surf, (80, 80, 90), points)
+            pygame.draw.polygon(surf, (120, 120, 130), points, 2)
+
+        pygame.draw.rect(surf, (60, 60, 70), (0, height - 5, width, 5))
+
+        return surf
+
+    @staticmethod
+    def create_obstacle_barrier(width: int = 120, height: int = 150) -> pygame.Surface:
+        """Create barrier obstacle sprite (stone wall)."""
+        surf = pygame.Surface((width, height), pygame.SRCALPHA)
+        pygame.draw.rect(surf, (70, 70, 80), (0, 0, width, height))
+        brick_height = 30
+        for row in range(0, height, brick_height):
+            offset = 0 if (row // brick_height) % 2 == 0 else width // 3
+            pygame.draw.line(surf, (50, 50, 60), (0, row), (width, row), 2)
+            if offset > 0:
+                pygame.draw.line(surf, (50, 50, 60), (offset, row), (offset, min(row + brick_height, height)), 2)
+                pygame.draw.line(surf, (50, 50, 60), (offset + width // 3, row),
+                                 (offset + width // 3, min(row + brick_height, height)), 2)
+
+        # Dark outline
+        pygame.draw.rect(surf, (40, 40, 50), (0, 0, width, height), 3)
+
+        return surf
+
+    @staticmethod
+    def create_breakable_crate(width: int = 100, height: int = 100) -> pygame.Surface:
+        """
+        Create wooden crate sprite (wood, breakable).
+
+        CLEARLY wooden appearance with brown color and visible grain.
+
+        Args:
+            width: Crate width (scaled)
+            height: Crate height (scaled)
+
+        Returns:
+            Wooden crate sprite
+        """
+        surf = pygame.Surface((width, height), pygame.SRCALPHA)
+
+        # Brown wooden crate
+        wood_color = (139, 90, 43)
+        dark_wood = (101, 67, 33)
+        pygame.draw.rect(surf, wood_color, (5, 5, width-10, height-10))
+
+        # Wooden planks (horizontal lines)
+        for i in range(3):
+            y = 15 + i * (height // 3)
+            pygame.draw.line(surf, dark_wood, (10, y), (width-10, y), 3)
+
+        # Vertical planks
+        for i in range(2):
+            x = 20 + i * (width // 2)
+            pygame.draw.line(surf, dark_wood, (x, 10), (x, height-10), 3)
+
+        pygame.draw.rect(surf, dark_wood, (5, 5, width-10, height-10), 4)
+        return surf
+
+    @staticmethod
+    def create_coin(radius: int = 18) -> pygame.Surface:
+        """
+        Create coin collectible sprite.
+
+        Args:
+            radius: Coin radius (scaled: 12 * 1.5 = 18)
+
+        Returns:
+            Coin sprite
+        """
+        size = radius * 2 + 4
+        surf = pygame.Surface((size, size), pygame.SRCALPHA)
+        center = (size//2, size//2)
+
+        # Gold coin
+        pygame.draw.circle(surf, (255, 215, 0), center, radius)
+        pygame.draw.circle(surf, (218, 165, 32), center, radius, 3)
+
+        return surf
+
+    @staticmethod
+    def create_low_blocker(width: int = 80, height: int = 500) -> pygame.Surface:
+        """Create ceiling blocker (solid wall from top)."""
+        surf = pygame.Surface((width, height), pygame.SRCALPHA)
+        pygame.draw.rect(surf, (60, 60, 70), (0, 0, width, height))
+        pygame.draw.rect(surf, (40, 40, 50), (0, 0, width, height), 3)
+
+        # Horizontal lines for texture
+        for i in range(0, height, 50):
+            pygame.draw.line(surf, (50, 50, 60), (0, i), (width, i), 2)
+
+        return surf
