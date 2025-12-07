@@ -17,7 +17,7 @@ from application. physics_engine import PhysicsEngine
 from application.collision_detector import CollisionDetector
 from application. physics_constants import BASE_SCROLL_SPEED, SPEED_INCREASE_RATE
 from infrastructure.audio.audio_manager import AudioManager
-from infrastructure.cloud_parallax import CloudParallax
+from infrastructure.background_parallax import BackgroundParallax
 from infrastructure. input.keyboard_adapter import KeyboardAdapter
 from infrastructure.input.input_actions import InputAction
 from application.game_state import GameState
@@ -67,7 +67,7 @@ class GameManager:
         self.ninja = None
         self.obstacles: List[Obstacle] = []
         self.collectibles: List[Collectible] = []
-        self.clouds = CloudParallax(self.SCREEN_WIDTH, self.SCREEN_HEIGHT)
+        self.background = BackgroundParallax(self.SCREEN_WIDTH, self.SCREEN_HEIGHT)
 
         # Game progression
         self.scroll_speed = BASE_SCROLL_SPEED
@@ -170,7 +170,7 @@ class GameManager:
         self.physics.update(self.ninja, delta_time)
 
         # Update clouds
-        self.clouds.update(delta_time, self.scroll_speed)
+        self.background.update(delta_time, self.scroll_speed)
 
         # Update all entities
         self.ninja.update(delta_time)
@@ -300,10 +300,7 @@ class GameManager:
             return
 
         # Sky background
-        self.screen.fill((135, 206, 235))
-
-        # Clouds
-        self.clouds.render(self.screen)
+        self.background.render(self.screen)
 
         # Ground
         pygame.draw.rect(
