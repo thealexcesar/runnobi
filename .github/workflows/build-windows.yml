@@ -1,42 +1,21 @@
 name: Build Windows Release
-
 on:
   push:
     tags:
       - 'v*'
-
 jobs:
   build:
     runs-on: windows-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
         with:
           python-version: '3.10'
-
-      - name: Install dependencies
-        run: |
-          pip install pygame
-          pip install pyinstaller
-
-      - name: Build executable
-        run: |
-          pyinstaller --onefile --windowed --name=Runnobi src/main.py
-
-      - name: Copy assets to dist
-        run: |
-          xcopy /E /I assets dist\assets
-
-      - name: Create ZIP
-        run: |
-          Compress-Archive -Path dist\* -DestinationPath Runnobi-Windows.zip
-
-      - name: Create Release
-        uses: softprops/action-gh-release@v1
+      - run: pip install pygame pyinstaller
+      - run: pyinstaller --onefile --windowed --name=Runnobi src/main.py
+      - run: xcopy /E /I assets dist\assets
+      - run: Compress-Archive -Path dist\* -DestinationPath Runnobi-Windows.zip
+      - uses: softprops/action-gh-release@v1
         with:
           files: Runnobi-Windows.zip
         env:
