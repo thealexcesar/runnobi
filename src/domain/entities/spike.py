@@ -17,7 +17,7 @@ class Spike(Obstacle):
     """
 
     WIDTH = 60
-    HEIGHT = 75
+    HEIGHT = 70
 
     def __init__(self, x: float, y: float, scroll_speed: float) -> None:
         """

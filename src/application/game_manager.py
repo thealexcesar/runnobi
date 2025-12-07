@@ -4,6 +4,8 @@ Game manager - central coordinator using Mediator pattern.
 Coordinates all game systems: physics, collision, input, rendering, spawning.
 Implements simplified ninja mechanics: jump, crouch, attack.
 """
+from pathlib import Path
+
 import pygame
 import random
 from typing import List
@@ -79,7 +81,15 @@ class GameManager:
         self.state = GameState.MENU
 
         # UI
-        self.font = pygame.font.Font(None, 36)
+        # Pixel font (cross-platform path)
+        font_path = Path(
+            __file__).parent.parent.parent / 'assets' / 'fonts' / 'Press_Start_2P' / 'PressStart2P-Regular.ttf'
+        try:
+            self.font = pygame.font.Font(str(font_path), 18)
+        except:
+            print(f"Failed to load font: {font_path}")
+            self.font = pygame.font.Font(None, 24)
+
         self.audio.play_music('menu')
 
     def run(self) -> None:
@@ -113,7 +123,12 @@ class GameManager:
         Processes window events and updates input system.
         """
         for event in pygame.event.get():
-            self. input.handle_event(event)
+            # Check window close button
+            if event.type == pygame.QUIT:
+                self.running = False
+                return
+
+            self.input.handle_event(event)
 
             if self.state == GameState.MENU:
                 if self.menu.handle_event(event):
@@ -264,6 +279,12 @@ class GameManager:
                     print("Crate destroyed! +100 points")
                     continue
 
+            # Low blocker - only kill if NOT crouching
+            from domain.entities.low_blocker import LowBlocker
+            if isinstance(obstacle, LowBlocker):
+                if self.ninja.is_crouching():
+                    continue  # Safe to pass under
+
             self.ninja.kill()
             break
 
@@ -283,7 +304,7 @@ class GameManager:
 
             # Spawn obstacle (80% chance)
             if random. random() < 0.8:
-                obstacle_type = random.choice(['spike', 'barrier', 'crate'])
+                obstacle_type = random.choice(['spike', 'barrier', 'crate', 'low_blocker'])
                 obstacle = ObstacleFactory.create(
                     obstacle_type,
                     self.SCREEN_WIDTH + 50,

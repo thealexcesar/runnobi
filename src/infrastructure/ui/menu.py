@@ -3,6 +3,7 @@ Main menu system for Runnobi.
 Handles menu rendering and user interaction.
 """
 import pygame
+from pathlib import Path
 
 from infrastructure.rendering.sprite_placeholder import PlaceholderSprites
 
@@ -21,10 +22,19 @@ class MainMenu:
         self.screen_width = screen_width
         self.screen_height = screen_height
 
-        # Fonts
-        self.title_font = pygame.font.Font(None, 72)
-        self.button_font = pygame.font.Font(None, 48)
-        self.subtitle_font = pygame.font.Font(None, 32)
+        # Pixel font (cross-platform path)
+        # Pixel font (cross-platform path)
+        font_path = Path(
+            __file__).parent.parent.parent.parent / 'assets' / 'fonts' / 'Press_Start_2P' / 'PressStart2P-Regular.ttf'
+        try:
+            self.title_font = pygame.font.Font(str(font_path), 36)
+            self.button_font = pygame.font.Font(str(font_path), 24)
+            self.subtitle_font = pygame.font.Font(str(font_path), 16)
+        except:
+            print(f"Failed to load font: {font_path}")
+            self.title_font = pygame.font.Font(None, 48)
+            self.button_font = pygame.font.Font(None, 32)
+            self.subtitle_font = pygame.font.Font(None, 24)
 
         # Colors
         self.bg_color = (20, 25, 35)
@@ -37,8 +47,7 @@ class MainMenu:
         button_width = 250
         button_height = 70
         self.start_button_rect = pygame.Rect(
-            (screen_width - button_width) // 2,
-            screen_height // 2 + 50,
+            (screen_width - button_width) // 2, 420,
             button_width,
             button_height
         )
@@ -49,7 +58,7 @@ class MainMenu:
         self.ninja_animation_timer = 0.0
         self.ninja_animation_speed = 0.15
         self.ninja_x = screen_width // 2 - 42
-        self.ninja_y = screen_height // 2 - 100
+        self.ninja_y = 220
 
     def handle_event(self, event: pygame.event.Event) -> bool:
         """
@@ -102,7 +111,7 @@ class MainMenu:
 
         # Title
         title_text = self.title_font.render("RUN:NOBI", True, self.title_color)
-        title_rect = title_text.get_rect(center=(self.screen_width // 2, self.screen_height // 3))
+        title_rect = title_text.get_rect(center=(self.screen_width // 2, 150))
         screen.blit(title_text, title_rect)
 
         # Subtitle

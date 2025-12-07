@@ -15,6 +15,7 @@ __all__ = [
     'Spike',
     'Barrier',
     'BreakableCrate',
+    'low_blocker',
     'Collectible',
     'Coin',
 ]

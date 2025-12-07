@@ -188,39 +188,40 @@ class PlaceholderSprites:
 
     @staticmethod
     def create_obstacle_spike(width: int = 60, height: int = 75) -> pygame.Surface:
-        """
-        Create spike obstacle sprite (metal, indestructible).
-
-        Args:
-            width: Spike width (scaled)
-            height: Spike height (scaled)
-
-        Returns:
-            Spike sprite
-        """
+        """Create spike obstacle sprite (3 sharp metal spikes)."""
         surf = pygame.Surface((width, height), pygame.SRCALPHA)
-        # Gray metallic spike
-        points = [(width//2, 5), (width-5, height-5), (5, height-5)]
-        pygame.draw.polygon(surf, (150, 150, 150), points)
-        pygame.draw.polygon(surf, (100, 100, 100), points, 2)  # Outline
+        spike_width = width // 3
+        for i in range(3):
+            x_offset = i * spike_width
+            points = [
+                (x_offset + spike_width // 2, 0),
+                (x_offset + spike_width - 2, height - 5),
+                (x_offset + 2, height - 5)
+            ]
+            pygame.draw.polygon(surf, (80, 80, 90), points)
+            pygame.draw.polygon(surf, (120, 120, 130), points, 2)
+
+        pygame.draw.rect(surf, (60, 60, 70), (0, height - 5, width, 5))
+
         return surf
 
     @staticmethod
     def create_obstacle_barrier(width: int = 120, height: int = 150) -> pygame.Surface:
-        """
-        Create barrier obstacle sprite (stone, indestructible).
-
-        Args:
-            width: Barrier width (scaled)
-            height: Barrier height (scaled)
-
-        Returns:
-            Barrier sprite
-        """
+        """Create barrier obstacle sprite (stone wall)."""
         surf = pygame.Surface((width, height), pygame.SRCALPHA)
-        # Stone barrier (gray)
-        pygame.draw.rect(surf, (120, 120, 120), (10, 0, width-20, height))
-        pygame.draw.rect(surf, (80, 80, 80), (10, 0, width-20, height), 3)
+        pygame.draw.rect(surf, (70, 70, 80), (0, 0, width, height))
+        brick_height = 30
+        for row in range(0, height, brick_height):
+            offset = 0 if (row // brick_height) % 2 == 0 else width // 3
+            pygame.draw.line(surf, (50, 50, 60), (0, row), (width, row), 2)
+            if offset > 0:
+                pygame.draw.line(surf, (50, 50, 60), (offset, row), (offset, min(row + brick_height, height)), 2)
+                pygame.draw.line(surf, (50, 50, 60), (offset + width // 3, row),
+                                 (offset + width // 3, min(row + brick_height, height)), 2)
+
+        # Dark outline
+        pygame.draw.rect(surf, (40, 40, 50), (0, 0, width, height), 3)
+
         return surf
 
     @staticmethod
@@ -240,10 +241,8 @@ class PlaceholderSprites:
         surf = pygame.Surface((width, height), pygame.SRCALPHA)
 
         # Brown wooden crate
-        wood_color = (139, 90, 43)  # Brown
-        dark_wood = (101, 67, 33)   # Darker brown for planks
-
-        # Main crate body
+        wood_color = (139, 90, 43)
+        dark_wood = (101, 67, 33)
         pygame.draw.rect(surf, wood_color, (5, 5, width-10, height-10))
 
         # Wooden planks (horizontal lines)
@@ -256,12 +255,8 @@ class PlaceholderSprites:
             x = 20 + i * (width // 2)
             pygame.draw.line(surf, dark_wood, (x, 10), (x, height-10), 3)
 
-        # Border
         pygame.draw.rect(surf, dark_wood, (5, 5, width-10, height-10), 4)
-
         return surf
-
-    # === Collectible Sprites (Scaled 1.5x) ===
 
     @staticmethod
     def create_coin(radius: int = 18) -> pygame.Surface:
@@ -281,5 +276,18 @@ class PlaceholderSprites:
         # Gold coin
         pygame.draw.circle(surf, (255, 215, 0), center, radius)
         pygame.draw.circle(surf, (218, 165, 32), center, radius, 3)
+
+        return surf
+
+    @staticmethod
+    def create_low_blocker(width: int = 80, height: int = 500) -> pygame.Surface:
+        """Create ceiling blocker (solid wall from top)."""
+        surf = pygame.Surface((width, height), pygame.SRCALPHA)
+        pygame.draw.rect(surf, (60, 60, 70), (0, 0, width, height))
+        pygame.draw.rect(surf, (40, 40, 50), (0, 0, width, height), 3)
+
+        # Horizontal lines for texture
+        for i in range(0, height, 50):
+            pygame.draw.line(surf, (50, 50, 60), (0, i), (width, i), 2)
 
         return surf

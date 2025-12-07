@@ -5,6 +5,7 @@ Factory pattern for obstacle creation without complex pooling (MVP version).
 """
 from typing import Literal
 
+from domain.entities.low_blocker import LowBlocker
 from domain.entities.obstacle import Obstacle
 from domain.entities.spike import Spike
 from domain.entities.barrier import Barrier
@@ -41,5 +42,8 @@ class ObstacleFactory:
             return Barrier(x, ground_y - Barrier.HEIGHT, scroll_speed)
         elif obstacle_type == 'crate':
             return BreakableCrate(x, ground_y - BreakableCrate.HEIGHT, scroll_speed)
+        elif obstacle_type == 'low_blocker':
+            return LowBlocker(x, ground_y, scroll_speed)
         else:
             raise ValueError(f"Unknown obstacle type: {obstacle_type}")
+

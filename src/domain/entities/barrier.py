@@ -17,7 +17,7 @@ class Barrier(Obstacle):
     """
 
     WIDTH = 84
-    HEIGHT = 150
+    HEIGHT = 146
 
     def __init__(self, x: float, y: float, scroll_speed: float) -> None:
         """

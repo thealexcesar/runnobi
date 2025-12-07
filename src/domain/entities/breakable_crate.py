@@ -16,8 +16,8 @@ class BreakableCrate(Obstacle):
     Can be destroyed by ninja's katana attack.
     """
 
-    WIDTH = 84
-    HEIGHT = 84
+    WIDTH = 90
+    HEIGHT = 90
 
     def __init__(self, x: float, y: float, scroll_speed: float) -> None:
         """
