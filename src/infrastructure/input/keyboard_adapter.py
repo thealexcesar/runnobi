@@ -6,7 +6,8 @@ Allows easy remapping and future gamepad support without changing game code.
 """
 import pygame
 from typing import Set
-from .input_actions import InputAction
+
+from infrastructure.input import InputAction
 
 
 class KeyboardAdapter:

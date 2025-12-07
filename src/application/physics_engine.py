@@ -4,16 +4,15 @@ Physics engine for game simulation.
 Handles gravity, velocity updates, and ground collision for ninja.
 Simple implementation focused on responsive 2D platformer feel.
 """
-from ..domain.entities.ninja import Ninja
-from ..domain.value_objects.velocity import Velocity
-from ..domain.value_objects.position import Position
-from .physics_constants import (
+from domain.entities import Ninja
+from domain.value_objects.velocity import Velocity
+from domain.value_objects.position import Position
+from application.physics_constants import (
     GRAVITY,
     MAX_FALL_SPEED,
     GROUND_FRICTION,
     AIR_RESISTANCE,
 )
-
 
 class PhysicsEngine:
     """

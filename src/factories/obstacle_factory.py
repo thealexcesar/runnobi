@@ -4,10 +4,11 @@ Simple obstacle factory for creating obstacles.
 Factory pattern for obstacle creation without complex pooling (MVP version).
 """
 from typing import Literal
-from ..domain.entities.obstacle import Obstacle
-from ..domain.entities.spike import Spike
-from ..domain.entities.barrier import Barrier
-from ..domain.entities.breakable_crate import BreakableCrate
+
+from domain.entities.obstacle import Obstacle
+from domain.entities.spike import Spike
+from domain.entities.barrier import Barrier
+from domain.entities.breakable_crate import BreakableCrate
 
 
 ObstacleType = Literal['spike', 'barrier', 'low_barrier', 'crate']

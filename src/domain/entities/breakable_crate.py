@@ -4,8 +4,9 @@ Breakable crate obstacle - can be destroyed by attack.
 Crate that blocks path but can be destroyed with katana slash.
 """
 import pygame
-from .obstacle import Obstacle
-from ..interfaces.i_game_entity import IGameEntity
+
+from domain.entities import Obstacle
+from domain.interfaces import IGameEntity
 
 
 class BreakableCrate(Obstacle):
@@ -15,8 +16,8 @@ class BreakableCrate(Obstacle):
     Can be destroyed by ninja's katana attack.
     """
 
-    WIDTH = 56
-    HEIGHT = 56
+    WIDTH = 84
+    HEIGHT = 84
 
     def __init__(self, x: float, y: float, scroll_speed: float) -> None:
         """
@@ -51,5 +52,5 @@ class BreakableCrate(Obstacle):
 
     def get_sprite(self) -> pygame.Surface:
         """Get crate sprite."""
-        from ...infrastructure.rendering.sprite_placeholder import PlaceholderSprites
+        from infrastructure.rendering.sprite_placeholder import PlaceholderSprites
         return PlaceholderSprites.create_breakable_crate()

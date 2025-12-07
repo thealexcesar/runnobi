@@ -4,8 +4,9 @@ Spike obstacle - instant death on contact.
 Sharp obstacle that kills ninja immediately on collision.
 """
 import pygame
-from .obstacle import Obstacle
-from ..interfaces.i_game_entity import IGameEntity
+
+from domain.entities import Obstacle
+from domain.interfaces import IGameEntity
 
 
 class Spike(Obstacle):
@@ -15,8 +16,8 @@ class Spike(Obstacle):
     Cannot be destroyed or avoided except by jumping over.
     """
 
-    WIDTH = 40
-    HEIGHT = 50
+    WIDTH = 60
+    HEIGHT = 75
 
     def __init__(self, x: float, y: float, scroll_speed: float) -> None:
         """
@@ -42,5 +43,5 @@ class Spike(Obstacle):
 
     def get_sprite(self) -> pygame.Surface:
         """Get spike sprite."""
-        from ...infrastructure.rendering.sprite_placeholder import PlaceholderSprites
+        from infrastructure.rendering.sprite_placeholder import PlaceholderSprites
         return PlaceholderSprites.create_obstacle_spike()

@@ -5,15 +5,15 @@ Implements clean state machine for animations and parkour movement.
 Focused gameplay: jump, crouch, and attack wooden obstacles.
 """
 import pygame
-from typing import Optional
-from ..interfaces.i_game_entity import IGameEntity
-from ..interfaces.i_collidable import ICollidable
-from ..interfaces.i_updatable import IUpdatable
-from ..interfaces.i_renderable import IRenderable
-from ..value_objects.position import Position
-from ..value_objects.velocity import Velocity
-from ..value_objects.bounds import Bounds
-from .ninja_state import NinjaState
+
+from domain.entities.ninja_state import NinjaState
+from domain.interfaces.i_collidable import ICollidable
+from domain.interfaces.i_game_entity import IGameEntity
+from domain.interfaces.i_renderable import IRenderable
+from domain.interfaces.i_updatable import IUpdatable
+from domain.value_objects.bounds import Bounds
+from domain.value_objects.position import Position
+from domain.value_objects.velocity import Velocity
 
 
 class Ninja(IGameEntity, ICollidable, IUpdatable, IRenderable):
@@ -206,7 +206,7 @@ class Ninja(IGameEntity, ICollidable, IUpdatable, IRenderable):
         Returns:
             Pygame surface with current animation frame
         """
-        from ...infrastructure.rendering.sprite_placeholder import PlaceholderSprites
+        from infrastructure.rendering.sprite_placeholder import PlaceholderSprites
 
         # State-based sprite selection
         if self._state == NinjaState.IDLE:
@@ -222,9 +222,13 @@ class Ninja(IGameEntity, ICollidable, IUpdatable, IRenderable):
             else:
                 return PlaceholderSprites.create_ninja_jump(frame=self._current_frame)
 
+
         elif self._state == NinjaState.CROUCHING:
-            # Use stand sprite for crouching
-            return PlaceholderSprites.create_ninja_crouch(frame=self._current_frame)
+            return PlaceholderSprites.create_ninja_crouch(
+                width=self.WIDTH,
+                height=self.HEIGHT,
+                frame=self._current_frame
+            )
 
         elif self._state == NinjaState.ATTACKING:
             return PlaceholderSprites.create_ninja_attack(frame=self._current_frame)

@@ -4,8 +4,8 @@ Simple collectible factory for creating collectibles.
 Factory pattern for collectible creation (MVP version).
 """
 from typing import Literal
-from ..domain.entities.collectible import Collectible
-from ..domain.entities.coin import Coin
+
+from domain.entities import Collectible, Coin
 
 CollectibleType = Literal['coin']
 

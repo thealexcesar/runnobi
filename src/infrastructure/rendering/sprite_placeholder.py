@@ -48,6 +48,8 @@ class PlaceholderSprites:
     # Fallback colors
     NINJA_COLOR = (30, 30, 40)
     NINJA_SCARF = (220, 50, 50)
+    NINJA_WIDTH = 90
+    NINJA_HEIGHT = int(NINJA_WIDTH * 1.5)
 
     @staticmethod
     def _get_real_sprite(animation: str, frame: int, width: int, height: int) -> Optional[pygame.Surface]:
@@ -90,13 +92,13 @@ class PlaceholderSprites:
     # === Ninja Sprites (Scaled 1.5x) ===
 
     @staticmethod
-    def create_ninja_idle(width: int = 84, height: int = 126, frame: int = 0) -> pygame.Surface:
+    def create_ninja_idle(width: int = NINJA_WIDTH, height: int = NINJA_HEIGHT, frame: int = 0) -> pygame.Surface:
         """
         Create ninja idle sprite.
 
         Args:
             width: Sprite width (default 84 = 56 * 1.5)
-            height: Sprite height (default 126 = 84 * 1.5)
+            height: Sprite height (default NINJA_HEIGHT = 84 * 1.5)
             frame: Animation frame
 
         Returns:
@@ -106,7 +108,7 @@ class PlaceholderSprites:
         return sprite if sprite else PlaceholderSprites._create_fallback(width, height)
 
     @staticmethod
-    def create_ninja_run(width: int = 84, height: int = 126, frame: int = 0) -> pygame.Surface:
+    def create_ninja_run(width: int = NINJA_WIDTH, height: int = NINJA_HEIGHT, frame: int = 0) -> pygame.Surface:
         """
         Create ninja running sprite.
 
@@ -117,7 +119,7 @@ class PlaceholderSprites:
         return sprite if sprite else PlaceholderSprites._create_fallback(width, height)
 
     @staticmethod
-    def create_ninja_jump(width: int = 84, height: int = 126, frame: int = 0) -> pygame.Surface:
+    def create_ninja_jump(width: int = NINJA_WIDTH, height: int = NINJA_HEIGHT, frame: int = 0) -> pygame.Surface:
         """
         Create ninja jumping sprite (first jump).
 
@@ -128,7 +130,7 @@ class PlaceholderSprites:
         return sprite if sprite else PlaceholderSprites._create_fallback(width, height)
 
     @staticmethod
-    def create_ninja_somersault(width: int = 84, height: int = 126, frame: int = 0) -> pygame.Surface:
+    def create_ninja_somersault(width: int = NINJA_WIDTH, height: int = NINJA_HEIGHT, frame: int = 0) -> pygame.Surface:
         """
         Create ninja somersault sprite (second jump).
 
@@ -145,15 +147,15 @@ class PlaceholderSprites:
         return sprite if sprite else PlaceholderSprites._create_fallback(width, height)
 
     @staticmethod
-    def create_ninja_crouch(width: int = 84, height: int = 75, frame: int = 0) -> pygame.Surface:
+    def create_ninja_crouch(width: int = NINJA_WIDTH, height: int = 75, frame: int = 0) -> pygame.Surface:
         """
         Create ninja crouching sprite.
 
         Uses 'adventurer-stand-' animation (frames 0-5).
 
         Args:
-            width: Sprite width (default 84)
-            height: Sprite height (default 75 = 50 * 1.5, crouched)
+            width: Sprite width
+            height: Sprite height
             frame: Animation frame (0-5)
 
         Returns:
@@ -163,7 +165,7 @@ class PlaceholderSprites:
         return sprite if sprite else PlaceholderSprites._create_fallback(width, height)
 
     @staticmethod
-    def create_ninja_attack(width: int = 105, height: int = 126, frame: int = 0) -> pygame.Surface:
+    def create_ninja_attack(width: int = NINJA_WIDTH, height: int = NINJA_HEIGHT, frame: int = 0) -> pygame.Surface:
         """
         Create ninja attack sprite.
 
@@ -222,7 +224,7 @@ class PlaceholderSprites:
         return surf
 
     @staticmethod
-    def create_breakable_crate(width: int = 84, height: int = 84) -> pygame.Surface:
+    def create_breakable_crate(width: int = 100, height: int = 100) -> pygame.Surface:
         """
         Create wooden crate sprite (wood, breakable).
 

@@ -4,8 +4,9 @@ Barrier obstacle - must jump over.
 High vertical obstacle that blocks ninja path.
 """
 import pygame
-from .obstacle import Obstacle
-from ..interfaces.i_game_entity import IGameEntity
+
+from domain.entities import Obstacle
+from domain.interfaces import IGameEntity
 
 
 class Barrier(Obstacle):
@@ -15,8 +16,8 @@ class Barrier(Obstacle):
     Ninja must jump to clear this obstacle.
     """
 
-    WIDTH = 56
-    HEIGHT = 100
+    WIDTH = 84
+    HEIGHT = 150
 
     def __init__(self, x: float, y: float, scroll_speed: float) -> None:
         """
@@ -41,5 +42,5 @@ class Barrier(Obstacle):
 
     def get_sprite(self) -> pygame.Surface:
         """Get barrier sprite."""
-        from ...infrastructure.rendering.sprite_placeholder import PlaceholderSprites
+        from infrastructure.rendering.sprite_placeholder import PlaceholderSprites
         return PlaceholderSprites.create_obstacle_barrier()

@@ -5,12 +5,9 @@ Provides common behavior for items that ninja can collect.
 """
 from abc import ABC, abstractmethod
 import pygame
-from ..interfaces.i_game_entity import IGameEntity
-from ..interfaces.i_collidable import ICollidable
-from ..interfaces.i_updatable import IUpdatable
-from ..interfaces.i_renderable import IRenderable
-from ..value_objects.position import Position
-from ..value_objects.bounds import Bounds
+
+from domain.interfaces import IGameEntity, ICollidable, IUpdatable, IRenderable
+from domain.value_objects import Position, Bounds
 
 
 class Collectible(IGameEntity, ICollidable, IUpdatable, IRenderable, ABC):

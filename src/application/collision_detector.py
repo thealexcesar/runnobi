@@ -4,11 +4,10 @@ Collision detection system using AABB algorithm.
 Simple and efficient collision detection for 2D platformer.
 """
 from typing import List
-from ..domain.interfaces.i_game_entity import IGameEntity
-from ..domain.interfaces.i_collidable import ICollidable
-from ..domain.entities.ninja import Ninja
-from ..domain.entities.obstacle import Obstacle
-from ..domain.entities.collectible import Collectible
+from domain.interfaces.i_game_entity import IGameEntity
+from domain.entities.ninja import Ninja
+from domain.entities.obstacle import Obstacle
+from domain.entities.collectible import Collectible
 
 
 class CollisionDetector:

@@ -1,7 +1,8 @@
 """Coin collectible - adds score points."""
 import pygame
-from .collectible import Collectible
-from ..interfaces.i_game_entity import IGameEntity
+
+from domain.entities import Collectible
+from domain.interfaces import IGameEntity
 
 
 class Coin(Collectible):
@@ -20,7 +21,7 @@ class Coin(Collectible):
 
     def get_sprite(self) -> pygame.Surface:
         """Get coin sprite."""
-        from ...infrastructure.rendering.sprite_placeholder import PlaceholderSprites
+        from infrastructure.rendering.sprite_placeholder import PlaceholderSprites
         return PlaceholderSprites.create_coin()
 
     def get_points(self) -> int:

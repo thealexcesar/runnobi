@@ -8,20 +8,19 @@ import pygame
 import random
 from typing import List
 
-from src.domain.entities.ninja import Ninja
-from src.domain.entities.obstacle import Obstacle
-from src.domain.entities.collectible import Collectible
-from src.domain.entities.coin import Coin
-from src.domain.entities.breakable_crate import BreakableCrate
-from src.factories.obstacle_factory import ObstacleFactory
-from src.factories.collectible_factory import CollectibleFactory
-from src.application.physics_engine import PhysicsEngine
-from src.application.collision_detector import CollisionDetector
-from src.application.physics_constants import BASE_SCROLL_SPEED, SPEED_INCREASE_RATE
-from src.infrastructure.input.keyboard_adapter import KeyboardAdapter
-from src.infrastructure.input.input_actions import InputAction
-from src.application.game_state import GameState
-
+from domain.entities.ninja import Ninja
+from domain.entities.obstacle import Obstacle
+from domain.entities.collectible import Collectible
+from domain.entities.breakable_crate import BreakableCrate
+from factories.obstacle_factory import ObstacleFactory
+from application. physics_engine import PhysicsEngine
+from application.collision_detector import CollisionDetector
+from application. physics_constants import BASE_SCROLL_SPEED, SPEED_INCREASE_RATE
+from infrastructure.cloud_parallax import CloudParallax
+from infrastructure. input.keyboard_adapter import KeyboardAdapter
+from infrastructure.input.input_actions import InputAction
+from application.game_state import GameState
+from infrastructure.ui.menu import MainMenu
 
 class GameManager:
     """
@@ -35,46 +34,47 @@ class GameManager:
     - Delegate input to appropriate systems
     - Update all entities and systems
     - Render game state
-    - Manage game states (Playing, Paused, Game Over)
+    - Manage game states (Menu, Playing, Paused, Game Over)
     """
 
     # Screen configuration
     SCREEN_WIDTH = 1280
     SCREEN_HEIGHT = 720
-    GROUND_Y = 600  # Y coordinate where ground begins
+    GROUND_Y = 600
     TARGET_FPS = 60
 
     def __init__(self):
         """Initialize game systems and entities."""
+
         # Pygame initialization
         pygame.init()
-        self.screen = pygame.display.set_mode((self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
-        pygame.display.set_caption("🥷 RUNNOBI - Ninja Endless Runner")
+        self.screen = pygame.display. set_mode((self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
+        pygame.display. set_caption("🥷 RUNNOBI - Ninja Endless Runner")
         self.clock = pygame.time.Clock()
         self.running = True
 
         # Game systems (dependencies)
-        self.physics = PhysicsEngine(self.GROUND_Y)
+        self.physics = PhysicsEngine(self. GROUND_Y)
         self.collision = CollisionDetector()
         self.input = KeyboardAdapter()
 
-        # Entities
-        self.ninja = Ninja(
-            start_x=200,
-            start_y=self.GROUND_Y - Ninja.HEIGHT,
-            ground_y=self.GROUND_Y
-        )
+        # Menu system ← NOVO
+        self.menu = MainMenu(self. SCREEN_WIDTH, self.SCREEN_HEIGHT)
+
+        # Entities (initialized when game starts)
+        self.ninja = None
         self.obstacles: List[Obstacle] = []
         self.collectibles: List[Collectible] = []
+        self.clouds = CloudParallax(self.SCREEN_WIDTH, self.SCREEN_HEIGHT)
 
         # Game progression
         self.scroll_speed = BASE_SCROLL_SPEED
         self.distance_traveled = 0.0
         self.spawn_timer = 0.0
-        self.spawn_interval = 2.0  # seconds between spawns
+        self.spawn_interval = 2.0
 
         # Game state
-        self.state = GameState.PLAYING
+        self.state = GameState.MENU
 
         # UI
         self.font = pygame.font.Font(None, 36)
@@ -90,13 +90,15 @@ class GameManager:
 
             self._handle_events()
 
-            if self.state == GameState.PLAYING:
-                self._update_playing(delta_time)
-            elif self.state == GameState.PAUSED:
-                self._update_paused()
-            elif self.state == GameState.GAME_OVER:
-                self._update_game_over()
-
+            match self.state:
+                case GameState.MENU:
+                    self._update_menu()
+                case GameState.PLAYING:
+                    self._update_playing(delta_time)
+                case GameState.PAUSED:
+                    self._update_paused()
+                case GameState.GAME_OVER:
+                    self._update_game_over()
             self._render()
 
         pygame.quit()
@@ -108,7 +110,11 @@ class GameManager:
         Processes window events and updates input system.
         """
         for event in pygame.event.get():
-            self.input.handle_event(event)
+            self. input.handle_event(event)
+
+            if self.state == GameState.MENU:
+                if self.menu.handle_event(event):
+                    self._start_new_game()
 
         self.input.update()
 
@@ -118,22 +124,47 @@ class GameManager:
 
         if self.input.is_action_just_pressed(InputAction.PAUSE):
             if self.state == GameState.PLAYING:
-                self.state = GameState.PAUSED
+                self. state = GameState.MENU
             elif self.state == GameState.PAUSED:
-                self.state = GameState.PLAYING
+                self.state = GameState.MENU
+
+    def _update_menu(self) -> None:
+        """Update during MENU state."""
+        delta_time = self.clock.get_time() / 1000.0
+        self.menu.update(delta_time)
+
+    def _start_new_game(self) -> None:
+        """Start a new game from menu."""
+        print("\n🎮 Starting new game from menu...")
+
+        # Initialize ninja
+        self.ninja = Ninja(
+            start_x=200,
+            start_y=self.GROUND_Y - Ninja.HEIGHT,
+            ground_y=self.GROUND_Y
+        )
+
+        # Reset game state
+        self.obstacles.clear()
+        self.collectibles.clear()
+        self. scroll_speed = BASE_SCROLL_SPEED
+        self.distance_traveled = 0.0
+        self.spawn_timer = 0.0
+        self.state = GameState.PLAYING
 
     def _update_playing(self, delta_time: float) -> None:
-        """
-        Update game during PLAYING state.
+        """Update game during PLAYING state."""
+        if not self.ninja:
+            return
 
-        Args:
-            delta_time: Time elapsed since last frame (seconds)
-        """
         # Handle player input
         self._handle_ninja_input()
 
         # Update physics
         self.physics.update(self.ninja, delta_time)
+
+        # Update clouds
+        self.clouds.update(delta_time, self.scroll_speed)
 
         # Update all entities
         self.ninja.update(delta_time)
@@ -145,8 +176,8 @@ class GameManager:
 
         for collectible in self.collectibles[:]:
             collectible.update(delta_time)
-            if not collectible.is_active():
-                self.collectibles.remove(collectible)
+            if not collectible. is_active():
+                self. collectibles.remove(collectible)
 
         # Game systems
         self._check_collisions()
@@ -155,6 +186,10 @@ class GameManager:
         # Difficulty progression
         self.scroll_speed += SPEED_INCREASE_RATE * delta_time
         self.distance_traveled += self.scroll_speed * delta_time
+
+        # Update obstacle speeds
+        for obstacle in self.obstacles:
+            obstacle.speed = self.scroll_speed
 
         # Check game over
         if not self.ninja.is_active():
@@ -168,10 +203,13 @@ class GameManager:
         """
         Update during GAME_OVER state.
 
-        Waits for player to press jump to restart.
+        Waits for player to press jump to restart or ESC to menu.
         """
-        if self.input.is_action_just_pressed(InputAction.JUMP):
+        if self.input.is_action_just_pressed(InputAction. JUMP):
             self._restart_game()
+        # ← NOVO: ESC volta pro menu
+        elif self.input. is_action_just_pressed(InputAction.PAUSE):
+            self.state = GameState. MENU
 
     def _handle_ninja_input(self) -> None:
         """
@@ -179,12 +217,15 @@ class GameManager:
 
         Maps input actions to ninja abilities.
         """
+        if not self.ninja:  # ← NOVO: Safety check
+            return
+
         # Jump (works on ground and in air for double jump)
         if self.input.is_action_just_pressed(InputAction.JUMP):
             self.ninja.jump()
 
         # Crouch (hold to stay crouched)
-        if self.input.is_action_pressed(InputAction.CROUCH):
+        if self. input.is_action_pressed(InputAction.CROUCH):
             if not self.ninja.is_crouching():
                 self.ninja.start_crouch()
         else:
@@ -193,15 +234,13 @@ class GameManager:
                 self.ninja.stop_crouch()
 
         # Attack (sword slash)
-        if self.input.is_action_just_pressed(InputAction.ATTACK):
+        if self.input. is_action_just_pressed(InputAction.ATTACK):
             self.ninja.start_attack()
 
     def _check_collisions(self) -> None:
-        """
-        Check all collisions and handle responses.
+        if not self.ninja:  # Safety check
+            return
 
-        Checks ninja vs obstacles and ninja vs collectibles.
-        """
         # Obstacle collisions
         hit_obstacles = self.collision.check_ninja_obstacles(self.ninja, self.obstacles)
         for obstacle in hit_obstacles:
@@ -209,11 +248,12 @@ class GameManager:
             if isinstance(obstacle, BreakableCrate):
                 if self.ninja.is_crouching() or self.ninja.is_attacking():
                     obstacle.deactivate()
-                    self.ninja.add_score(5)
-                    continue  # Don't kill ninja
+                    self.ninja.add_score(100)
+                    print("Crate destroyed! +100 points")
+                    continue
 
-            # Other obstacles (or crates if not crouching/attacking) kill ninja
             self.ninja.kill()
+            break
 
     def _update_spawning(self, delta_time: float) -> None:
         """
@@ -227,10 +267,10 @@ class GameManager:
         self.spawn_timer += delta_time
 
         if self.spawn_timer >= self.spawn_interval:
-            self.spawn_timer = 0.0
+            self. spawn_timer = 0.0
 
             # Spawn obstacle (80% chance)
-            if random.random() < 0.8:
+            if random. random() < 0.8:
                 obstacle_type = random.choice(['spike', 'barrier', 'crate'])
                 obstacle = ObstacleFactory.create(
                     obstacle_type,
@@ -240,20 +280,18 @@ class GameManager:
                 )
                 self.obstacles.append(obstacle)
 
-            # Spawn coin (50% chance)
-            if random.random() < 0.5:
-                coin = CollectibleFactory.create(
-                    'coin',
-                    self.SCREEN_WIDTH + 50,
-                    self.GROUND_Y - 150,  # In air
-                    self.scroll_speed
-                )
-                self.collectibles.append(coin)
-
     def _render(self) -> None:
         """Render everything to screen."""
-        # Sky background (gradient would go here)
+        if self.state == GameState.MENU:
+            self.menu.render(self.screen)
+            pygame.display.flip()
+            return
+
+        # Sky background
         self.screen.fill((135, 206, 235))
+
+        # Clouds
+        self.clouds.render(self.screen)
 
         # Ground
         pygame.draw.rect(
@@ -276,25 +314,25 @@ class GameManager:
             if obstacle.is_active():
                 sprite = obstacle.get_sprite()
                 pos = obstacle.get_render_position()
-                self.screen.blit(sprite, pos.as_tuple())
+                self.screen.blit(sprite, pos. as_tuple())
 
         # Collectibles
         for collectible in self.collectibles:
-            if collectible.is_active():
+            if collectible. is_active():
                 sprite = collectible.get_sprite()
                 pos = collectible.get_render_position()
-                self.screen.blit(sprite, pos.as_tuple())
+                self. screen.blit(sprite, pos.as_tuple())
 
         # Ninja (render last = foreground)
-        if self.ninja.is_active():
-            sprite = self.ninja.get_sprite()
+        if self.ninja and self.ninja.is_active():
+            sprite = self. ninja.get_sprite()
             pos = self.ninja.get_render_position()
-            self.screen.blit(sprite, pos.as_tuple())
+            self. screen.blit(sprite, pos.as_tuple())
 
         # UI overlays
         self._render_hud()
 
-        if self.state == GameState.PAUSED:
+        if self.state == GameState. PAUSED:
             self._render_pause_overlay()
         elif self.state == GameState.GAME_OVER:
             self._render_game_over_overlay()
@@ -303,6 +341,9 @@ class GameManager:
 
     def _render_hud(self) -> None:
         """Render HUD (score, distance)."""
+        if not self.ninja:  # ← NOVO: Safety check
+            return
+
         # Score
         score_text = self.font.render(
             f"Score: {self.ninja.get_score()}",
@@ -321,7 +362,7 @@ class GameManager:
 
     def _render_pause_overlay(self) -> None:
         """Render pause screen overlay."""
-        overlay = pygame.Surface((self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
+        overlay = pygame. Surface((self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
         overlay.set_alpha(128)
         overlay.fill((0, 0, 0))
         self.screen.blit(overlay, (0, 0))
@@ -338,6 +379,9 @@ class GameManager:
 
     def _render_game_over_overlay(self) -> None:
         """Render game over screen."""
+        if not self.ninja:  # ← NOVO: Safety check
+            return
+
         overlay = pygame.Surface((self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
         overlay.set_alpha(200)
         overlay.fill((0, 0, 0))
@@ -345,7 +389,7 @@ class GameManager:
 
         # Game Over text
         game_over_text = self.font.render("GAME OVER", True, (255, 0, 0))
-        text_rect = game_over_text.get_rect(
+        text_rect = game_over_text. get_rect(
             center=(self.SCREEN_WIDTH // 2, self.SCREEN_HEIGHT // 2 - 50)
         )
         self.screen.blit(game_over_text, text_rect)
@@ -361,14 +405,13 @@ class GameManager:
         )
         self.screen.blit(score_text, score_rect)
 
-        # Restart instruction
         restart_text = self.font.render(
-            "Press SPACE to restart",
+            "Press SPACE to restart | ESC for menu",
             True,
             (255, 255, 255)
         )
         restart_rect = restart_text.get_rect(
-            center=(self.SCREEN_WIDTH // 2, self.SCREEN_HEIGHT // 2 + 50)
+            center=(self.SCREEN_WIDTH // 2, self. SCREEN_HEIGHT // 2 + 50)
         )
         self.screen.blit(restart_text, restart_rect)
 
@@ -377,11 +420,11 @@ class GameManager:
         self.ninja = Ninja(
             start_x=200,
             start_y=self.GROUND_Y - Ninja.HEIGHT,
-            ground_y=self.GROUND_Y
+            ground_y=self. GROUND_Y
         )
         self.obstacles.clear()
         self.collectibles.clear()
         self.scroll_speed = BASE_SCROLL_SPEED
         self.distance_traveled = 0.0
         self.spawn_timer = 0.0
-        self.state = GameState.PLAYING
+        self.state = GameState. PLAYING
