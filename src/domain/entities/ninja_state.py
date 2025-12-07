@@ -1,37 +1,34 @@
 """
-NinjaState enumeration for player character states.
+Ninja state enumeration for state machine.
 
-Defines all possible states the ninja can be in, used for animation
-and behavior control.
+Defines all possible states for the ninja character.
+Simplified mechanics: no dash, no shuriken.
 """
 from enum import Enum, auto
 
 
 class NinjaState(Enum):
     """
-    Enumeration of ninja character states.
+    Ninja character states for state machine implementation.
 
-    Each state corresponds to different animations and behavior logic.
-    State machine ensures ninja can only be in one state at a time.
+    Each state corresponds to different animations and behavior.
+    State transitions managed by Ninja class following State pattern.
     """
 
     IDLE = auto()
-    """Standing still on ground."""
+    """Standing still on ground (not used during gameplay, default state)."""
 
     RUNNING = auto()
-    """Moving forward on ground."""
+    """Moving forward on ground (main gameplay state)."""
 
     JUMPING = auto()
-    """In air, ascending or descending."""
+    """In air - ascending or descending (includes double jump)."""
 
-    SLIDING = auto()
-    """Sliding under low obstacles with reduced hitbox."""
+    CROUCHING = auto()
+    """Crouching with reduced hitbox (uses stand sprite animation)."""
 
     ATTACKING = auto()
-    """Performing katana slash attack."""
-
-    DASHING = auto()
-    """Executing shadow dash with invincibility."""
+    """Performing sword slash attack to destroy wooden crates."""
 
     DEAD = auto()
-    """Ninja has died, game over."""
+    """Ninja has died - game over state."""

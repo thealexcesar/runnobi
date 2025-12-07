@@ -1,7 +1,8 @@
 """
-Keyboard input adapter.
+Keyboard input adapter using Adapter pattern.
 
-Adapter pattern: converts pygame keyboard events to game actions.
+Converts pygame keyboard events to game-agnostic InputActions.
+Allows easy remapping and future gamepad support without changing game code.
 """
 import pygame
 from typing import Set
@@ -10,27 +11,34 @@ from .input_actions import InputAction
 
 class KeyboardAdapter:
     """
-    Keyboard input adapter using Adapter pattern.
+    Keyboard input adapter implementing Adapter pattern.
 
     Converts pygame keyboard input to game-agnostic InputActions.
-    Allows easy remapping and future gamepad support.
+    Benefits:
+    - Easy key remapping
+    - Input agnostic game code
+    - Future gamepad support possible
+    - Cleaner separation of concerns
     """
 
-    # Default key mapping
+    # Default key mapping (can be customized)
     DEFAULT_KEY_MAP = {
+        # Jump
         pygame.K_SPACE: InputAction.JUMP,
         pygame.K_UP: InputAction.JUMP,
         pygame.K_w: InputAction.JUMP,
+        pygame.K_j: InputAction.JUMP,
 
-        pygame.K_DOWN: InputAction.SLIDE,
-        pygame.K_s: InputAction.SLIDE,
+        # Crouch (uses stand sprite)
+        pygame.K_DOWN: InputAction.CROUCH,
+        pygame.K_s: InputAction.CROUCH,
+        pygame.K_k: InputAction.CROUCH,
 
-        pygame.K_LSHIFT: InputAction.DASH,
-        pygame.K_RSHIFT: InputAction.DASH,
-
+        # Attack (sword slash)
         pygame.K_x: InputAction.ATTACK,
         pygame.K_z: InputAction.ATTACK,
 
+        # Pause
         pygame.K_ESCAPE: InputAction.PAUSE,
         pygame.K_p: InputAction.PAUSE,
     }
@@ -43,7 +51,7 @@ class KeyboardAdapter:
 
     def update(self) -> None:
         """
-        Update input state.
+        Update input state for current frame.
 
         Call once per frame before checking actions.
         Clears just_pressed actions from previous frame.
@@ -66,7 +74,7 @@ class KeyboardAdapter:
 
     def handle_event(self, event: pygame.event.Event) -> None:
         """
-        Handle pygame event for special cases.
+        Handle pygame event for special cases (e.g., window close).
 
         Args:
             event: Pygame event
@@ -77,6 +85,8 @@ class KeyboardAdapter:
     def is_action_pressed(self, action: InputAction) -> bool:
         """
         Check if action is currently being held down.
+
+        Use for continuous actions (e.g., holding crouch).
 
         Args:
             action: Action to check
@@ -89,6 +99,8 @@ class KeyboardAdapter:
     def is_action_just_pressed(self, action: InputAction) -> bool:
         """
         Check if action was just pressed this frame.
+
+        Use for single-tap actions (e.g., jump, attack).
 
         Args:
             action: Action to check
