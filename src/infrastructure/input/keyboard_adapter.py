@@ -29,21 +29,20 @@ class KeyboardAdapter:
         pygame.K_UP: InputAction.JUMP,
         pygame.K_w: InputAction.JUMP,
         pygame.K_j: InputAction.JUMP,
-
         # Crouch (uses stand sprite)
         pygame.K_DOWN: InputAction.CROUCH,
         pygame.K_s: InputAction.CROUCH,
         pygame.K_k: InputAction.CROUCH,
-
         # Attack (sword slash)
         pygame.K_x: InputAction.ATTACK,
         pygame.K_z: InputAction.ATTACK,
         pygame.K_LEFT: InputAction.ATTACK,
         pygame.K_RIGHT: InputAction.ATTACK,
-
         # Pause
         pygame.K_ESCAPE: InputAction.PAUSE,
         pygame.K_p: InputAction.PAUSE,
+        # Fullscreen
+        pygame.K_F11: InputAction.FULLSCREEN,
     }
 
     def __init__(self) -> None:

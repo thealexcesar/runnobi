@@ -12,24 +12,32 @@ Course: Análise e Desenvolvimento de Sistemas
 Student ID: 3387546
 Date: December 7, 2025
 """
-from application.game_manager import GameManager
+import sys
+import os
+
+if hasattr(sys, "_MEIPASS"):
+    BASE_DIR = sys._MEIPASS
+else:
+    BASE_DIR = os.path.abspath(os.path.dirname(__file__))
+
+sys.path.insert(0, BASE_DIR)
+sys.path.insert(0, os.path.join(BASE_DIR, "src"))
+
+ASSETS_PATH = os.path.join(BASE_DIR, "..", "assets") if not hasattr(sys, "_MEIPASS") else os.path.join(BASE_DIR, "assets")
+
+from src.application.game_manager import GameManager
 
 
 def main():
-    """
-    Main game entry point.
-
-    Initializes game systems and starts the main loop.
-    """
-    print("🥷 RUNNOBI - Ninja Endless Runner")
+    print("RUNNOBI - Ninja Endless Runner")
     print("=" * 50)
-    print("🎮 Starting at MENU...")
+    print("Starting at MENU...")
     print("\nControls:")
     print("  SPACE/W/UP        - Jump (double jump available)")
     print("  DOWN/S            - Crouch (slide under obstacles)")
     print("  X/Z/LEFT/RIGHT    - Attack (destroy wooden crates)")
     print("  ESC               - Pause / Return to menu")
-    print("\n💡 Tips:")
+    print("\nTips:")
     print("  - Destroy wooden crates for +100 points!")
     print("  - Crouch OR attack to break wooden crates")
     print("  - Use double jump for high obstacles")
@@ -42,10 +50,13 @@ def main():
         game = GameManager()
         game.run()
     except KeyboardInterrupt:
-        print("\n⚠️  Game interrupted by user")
+        print("\nGame interrupted by user")
 
-    print("\n✅ Game closed successfully!")
+    print("\nGame closed successfully!")
 
 
 if __name__ == "__main__":
     main()
+
+    if os.name == "nt":
+        os.system("pause")

@@ -15,6 +15,8 @@ class InputAction(Enum):
     Used by KeyboardAdapter to decouple input handling from game logic.
     """
 
+    FULLSCREEN = auto()
+
     JUMP = auto()
     """Jump or double jump action."""
 

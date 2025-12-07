@@ -49,10 +49,14 @@ class GameManager:
     def __init__(self):
         """Initialize game systems and entities."""
 
-        # Pygame initialization
         pygame.init()
-        self.screen = pygame.display. set_mode((self.SCREEN_WIDTH, self.SCREEN_HEIGHT))
-        pygame.display. set_caption("🥷 RUNNOBI - Ninja Endless Runner")
+        info = pygame.display.Info()
+        screen_w, screen_h = info.current_w, info.current_h
+        window_w = min(self.SCREEN_WIDTH, int(screen_w * 0.8))
+        window_h = min(self.SCREEN_HEIGHT, int(screen_h * 0.8))
+        self.screen = pygame.display.set_mode((window_w, window_h))
+
+        pygame.display. set_caption("RUNNOBI - Ninja Endless Runner")
         self.clock = pygame.time.Clock()
         self.running = True
         self.audio = AudioManager()
@@ -139,6 +143,8 @@ class GameManager:
         # Global actions (work in any state)
         if self.input.is_action_just_pressed(InputAction.QUIT):
             self.running = False
+        if self.input.is_action_just_pressed(InputAction.FULLSCREEN):
+            pygame.display.toggle_fullscreen()
 
         if self.input.is_action_just_pressed(InputAction.PAUSE):
             if self.state == GameState.PLAYING:
