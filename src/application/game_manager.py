@@ -16,6 +16,7 @@ from factories.obstacle_factory import ObstacleFactory
 from application. physics_engine import PhysicsEngine
 from application.collision_detector import CollisionDetector
 from application. physics_constants import BASE_SCROLL_SPEED, SPEED_INCREASE_RATE
+from infrastructure.audio.audio_manager import AudioManager
 from infrastructure.cloud_parallax import CloudParallax
 from infrastructure. input.keyboard_adapter import KeyboardAdapter
 from infrastructure.input.input_actions import InputAction
@@ -52,6 +53,7 @@ class GameManager:
         pygame.display. set_caption("🥷 RUNNOBI - Ninja Endless Runner")
         self.clock = pygame.time.Clock()
         self.running = True
+        self.audio = AudioManager()
 
         # Game systems (dependencies)
         self.physics = PhysicsEngine(self. GROUND_Y)
@@ -78,6 +80,7 @@ class GameManager:
 
         # UI
         self.font = pygame.font.Font(None, 36)
+        self.audio.play_music('menu')
 
     def run(self) -> None:
         """
@@ -124,9 +127,11 @@ class GameManager:
 
         if self.input.is_action_just_pressed(InputAction.PAUSE):
             if self.state == GameState.PLAYING:
-                self. state = GameState.MENU
+                self.state = GameState.MENU
+                self.audio.play_music('menu')
             elif self.state == GameState.PAUSED:
                 self.state = GameState.MENU
+                self.audio.play_music('menu')
 
     def _update_menu(self) -> None:
         """Update during MENU state."""
@@ -135,7 +140,8 @@ class GameManager:
 
     def _start_new_game(self) -> None:
         """Start a new game from menu."""
-        print("\n🎮 Starting new game from menu...")
+        print("\nStarting new game from menu...")
+        self.audio.play_music('game')
 
         # Initialize ninja
         self.ninja = Ninja(
@@ -205,9 +211,11 @@ class GameManager:
 
         Waits for player to press jump to restart or ESC to menu.
         """
-        if self.input.is_action_just_pressed(InputAction. JUMP):
+        if self.audio.current_track != 'game_over':
+            self.audio.play_music('game_over')
+
+        if self.input.is_action_just_pressed(InputAction.JUMP):
             self._restart_game()
-        # ← NOVO: ESC volta pro menu
         elif self.input. is_action_just_pressed(InputAction.PAUSE):
             self.state = GameState. MENU
 
@@ -222,20 +230,24 @@ class GameManager:
 
         # Jump (works on ground and in air for double jump)
         if self.input.is_action_just_pressed(InputAction.JUMP):
-            self.ninja.jump()
+            if self.ninja.jump():
+                self.audio.play_sfx('jump')
 
         # Crouch (hold to stay crouched)
         if self. input.is_action_pressed(InputAction.CROUCH):
             if not self.ninja.is_crouching():
                 self.ninja.start_crouch()
+                self.audio.play_sfx('stand')
         else:
             # Release crouch when button released
             if self.ninja.is_crouching():
                 self.ninja.stop_crouch()
+                self.audio.play_sfx('stand')
 
         # Attack (sword slash)
         if self.input. is_action_just_pressed(InputAction.ATTACK):
             self.ninja.start_attack()
+            self.audio.play_sfx('attack')
 
     def _check_collisions(self) -> None:
         if not self.ninja:  # Safety check
