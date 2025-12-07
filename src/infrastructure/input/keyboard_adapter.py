@@ -38,6 +38,8 @@ class KeyboardAdapter:
         # Attack (sword slash)
         pygame.K_x: InputAction.ATTACK,
         pygame.K_z: InputAction.ATTACK,
+        pygame.K_LEFT: InputAction.ATTACK,
+        pygame.K_RIGHT: InputAction.ATTACK,
 
         # Pause
         pygame.K_ESCAPE: InputAction.PAUSE,

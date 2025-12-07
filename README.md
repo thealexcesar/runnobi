@@ -1,128 +1,113 @@
 # 🥷 RUNNOBI - Ninja Endless Runner
 
-Fast-paced ninja endless runner with parkour and combat mechanics.
-
-**Academic Project:** Demonstrating Clean Architecture, SOLID principles, and Design Patterns in Python game development.
+Fast-paced endless runner with parkour and combat mechanics. Academic project demonstrating Clean Architecture, SOLID principles, and Design Patterns.
 
 ---
 
-## 🎮 Game Features
-
-### Core Gameplay
-- **Endless Runner:** Auto-scrolling world with increasing difficulty
-- **Parkour Mechanics:** Jump and double jump over obstacles
-- **Combat System:** Slash wooden crates with your katana
-- **Crouching:** Duck under low obstacles (also destroys wooden crates!)
-- **Score System:** Collect coins and destroy crates for points
-
-### Controls
+## 🎮 Controls
 
 | Input | Action |
 |-------|--------|
-| `SPACE` / `J` / `W` / `UP` | Jump (press again for double jump) |
-| `DOWN` / `K` / `S` | Crouch (duck under obstacles, destroy wood) |
-| `X` / `Z` | Attack (sword slash destroys wooden crates) |
-| `ESC` / `P` | Pause |
+| `SPACE` / `W` / `UP` | Jump (double jump in air) |
+| `DOWN` / `S` | Crouch (slide under obstacles) |
+| `X` / `Z` / `LEFT` / `RIGHT` | Attack (slash to destroy crates) |
+| `ESC` | Pause / Return to menu |
 
-### Obstacles
-- **Spike** (Metal) - Cannot be destroyed, must jump over
-- **Barrier** (Stone) - Cannot be destroyed, must jump over
-- **Wooden Crate** (Wood) - Can be destroyed with attack or crouch
+---
 
-### Collectibles
-- **Coins** - Collect for +10 points
+## 🚧 Obstacles
+
+### Spike (Metal - Indestructible)
+- 3 sharp metal points
+- **Counter:** Jump over
+
+### Barrier (Stone - Indestructible)
+- Tall stone wall with brick pattern
+- **Counter:** Jump or double jump
+
+### Low Blocker (Ceiling - Indestructible)
+- Solid block from ceiling leaving gap at bottom
+- **Counter:** Crouch to pass under
+
+### Wooden Crate (Breakable)
+- Brown crate with visible wood grain
+- **Counter:** Attack (slash) OR crouch into it
+- **Reward:** +100 points when destroyed
+
+---
+
+## 🎯 Mechanics
+
+### Jump System
+- **Single Jump:** Press SPACE/W/UP
+- **Double Jump:** Press again in mid-air (uses somersault animation)
+- Responsive physics with gravity
+
+### Crouch System
+- **Hold DOWN/S** to crouch (uses "stand" sprite animation)
+- **Hitbox reduced:** 126px → 75px height
+- **Destroys wooden crates** on contact
+- Pass safely under low blockers
+
+### Attack System
+- **Press X/Z/LEFT/RIGHT** to slash with katana
+- **Range:** 80 pixels forward
+- **Cooldown:** 0.3 seconds
+- Destroys wooden crates in range
+- Uses "attack1" sprite animation
+
+### Difficulty Progression
+- **Speed increase:** +5 px/s per second
+- **Starting speed:** 300 px/s
+- **Max speed:** 800 px/s (after 3 minutes)
 
 ---
 
 ## 🏗️ Architecture
 
 ### Clean Architecture Layers
-
 ```
-┌─────────────────────────────────────┐
-│     Infrastructure Layer            │
-│  (Pygame, Input, Rendering, I/O)    │
-├─────────────────────────────────────┤
-│     Application Layer                │
-│  (Game Logic, Physics, Collision)   │
-├─────────────────────────────────────┤
-│     Domain Layer                     │
-│  (Entities, Value Objects, Rules)   │
-└─────────────────────────────────────┘
+Infrastructure Layer (Pygame, Input, Rendering, Audio)
+         ↓
+Application Layer (Game Logic, Physics, Collision)
+         ↓
+Domain Layer (Entities, Value Objects, Business Rules)
 ```
 
-### Design Patterns Implemented
+### Design Patterns (6 Required ✅)
 
 1. **Factory Pattern** - `ObstacleFactory`, `CollectibleFactory`
-   - Creates game entities without exposing creation logic
-   - Easy to add new obstacle/collectible types
-
-2. **State Pattern** - `NinjaState` enum
-   - Manages ninja animations and behavior
-   - Clean state transitions
-
+2. **State Pattern** - `NinjaState`, `GameState`
 3. **Adapter Pattern** - `KeyboardAdapter`
-   - Converts pygame input to game actions
-   - Decouples input handling from game logic
-
 4. **Mediator Pattern** - `GameManager`
-   - Coordinates all game systems
-   - Reduces coupling between systems
-
 5. **Value Object Pattern** - `Position`, `Velocity`, `Bounds`
-   - Immutable objects for game state
-   - Ensures data consistency
-
 6. **Proxy Pattern** - `PlaceholderSprites`
-   - Lazy loading of sprite resources
-   - Fallback system for missing sprites
 
-### SOLID Principles
+### SOLID Principles ✅
 
-- **Single Responsibility:** Each class has one clear purpose
-- **Open/Closed:** Entities extensible via inheritance
-- **Liskov Substitution:** All obstacles/collectibles interchangeable
-- **Interface Segregation:** Focused interfaces (ICollidable, IUpdatable, etc.)
+- **Single Responsibility:** Each class has one purpose
+- **Open/Closed:** Extensible via inheritance
+- **Liskov Substitution:** All obstacles interchangeable
+- **Interface Segregation:** Focused interfaces (`ICollidable`, `IUpdatable`)
 - **Dependency Inversion:** Depends on interfaces, not implementations
-
----
-
-## 📁 Project Structure
-
-```
-runnobi/
-├── src/
-│   ├── domain/                 # Core business logic
-│   │   ├── entities/          # Game entities (Ninja, Obstacles)
-│   │   ├── interfaces/        # Entity contracts
-│   │   └── value_objects/     # Immutable value types
-│   ├── application/           # Application services
-│   │   ├── physics_engine.py # Physics simulation
-│   │   ├── collision_detector.py # Collision detection
-│   │   └── game_manager.py   # Main coordinator
-│   ├── infrastructure/        # External interfaces
-│   │   ├── input/            # Input handling
-│   │   └── rendering/        # Sprite system
-│   └── factories/            # Entity factories
-├── tests/                    # Unit and integration tests
-├── docs/                     # Documentation
-└── assets/                   # Sprites and resources
-```
 
 ---
 
 ## 🚀 Getting Started
 
 ### Requirements
-- Python 3.8+
-- Pygame 2.0+
+- Python 3.10+
+- Pygame 2.6+
 
 ### Installation
-
 ```bash
 # Clone repository
 git clone https://github.com/yourusername/runnobi.git
 cd runnobi
+
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
 
 # Install dependencies
 pip install -r requirements.txt
@@ -132,7 +117,6 @@ python src/main.py
 ```
 
 ### Development
-
 ```bash
 # Run tests
 pytest tests/
@@ -141,140 +125,47 @@ pytest tests/
 pytest --cov=src tests/
 ```
 
----
-
-## 🎯 Game Mechanics
-
-### Jump System
-- **First Jump:** Press SPACE to jump
-- **Double Jump:** Press SPACE again in mid-air for higher jump
-- **Animation:** Second jump uses somersault animation
-
-### Crouch System (NEW!)
-- **Hold DOWN:** Crouch using "stand" sprite animation
-- **Reduced Hitbox:** Height 126px → 75px (can fit under obstacles)
-- **Destroys Wood:** Touching wooden crates while crouching destroys them!
-
-### Attack System
-- **Sword Slash:** Press X or Z to attack
-- **Range:** 80 pixels forward
-- **Effect:** Destroys wooden crates in range
-- **Cooldown:** 0.3 seconds
-
-### Difficulty Progression
-- **Speed Increase:** +5 px/s per second
-- **Starting Speed:** 300 px/s
-- **Max Speed:** 800 px/s (at 3+ minutes)
+### Game States
+- **Menu:** Main menu with animated ninja
+- **Playing:** Active gameplay
+- **Game Over:** Score display with restart option
 
 ---
 
-## 📚 Documentation
+## 🎯 Gameplay Tips
 
-- **[Core Mechanics](docs/mechanics.md)** - Detailed gameplay mechanics
-- **[Design Document](notes/design.md)** - Architecture and patterns
-- **[Tasks](notes/todo.md)** - Development roadmap
-
----
-
-## 🧪 Testing
-
-### Unit Tests
-- Value objects (Position, Velocity, Bounds)
-- Entity behavior
-- Collision detection logic
-
-### Integration Tests
-- Physics + Collision integration
-- Input + Game Manager integration
-- Full gameplay loop
+1. **Master double jump** - Essential for high barriers
+2. **Crouch early** - Duck before obstacles hit you
+3. **Use attack wisely** - Cooldown of 0.3s, plan ahead
+4. **Destroy crates** - +100 points each
+5. **Watch speed** - Game accelerates over time
 
 ---
 
-## 🎨 Sprite System
-
-### Sprite Loading
-1. **Real Sprites:** Loads from individual PNG files
-2. **Scaling:** Applies 1.5x scale for better visibility
-3. **Fallback:** Colored rectangles if sprites missing
-
-### Sprite Animations
-
-| Animation | Frames | Sprite Files |
-|-----------|--------|--------------|
-| Idle | 4 | `adventurer-idle-00.png` to `-03.png` |
-| Run | 6 | `adventurer-run-00.png` to `-05.png` |
-| Jump | 3 | `adventurer-jump-00.png` to `-02.png` |
-| Crouch | 6 | `adventurer-stand-00.png` to `-05.png` |
-| Attack | 4 | `adventurer-attack1-00.png` to `-03.png` |
-| Somersault | 4 | `adventurer-smrslt-00.png` to `-03.png` |
+## 📊 Scoring
+```
+Action                   Points
+──────────────────────────────
+Destroy wooden crate     +100
+Distance traveled        +1 per meter
+```
 
 ---
 
 ## 🤝 Contributing
 
-This is an academic project, but suggestions are welcome!
+This is an academic project. Suggestions welcome via issues or PRs!
 
-1. Fork the repository
-2. Create feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit changes (`git commit -m 'Add amazing feature'`)
-4. Push to branch (`git push origin feature/amazing-feature`)
+1. Fork repository
+2. Create feature branch
+3. Commit changes
+4. Push to branch
 5. Open Pull Request
 
 ---
 
 ## 📝 License
 
-MIT License - See LICENSE file for details.
+MIT License - See LICENSE file
 
 ---
-
-## 🏆 Academic Requirements
-
-### Design Patterns (6 Required) ✅
-1. ✅ Factory Pattern
-2. ✅ State Pattern
-3. ✅ Adapter Pattern
-4. ✅ Mediator Pattern
-5. ✅ Value Object Pattern
-6. ✅ Proxy Pattern
-
-### SOLID Principles ✅
-- ✅ Single Responsibility
-- ✅ Open/Closed
-- ✅ Liskov Substitution
-- ✅ Interface Segregation
-- ✅ Dependency Inversion
-
-### Clean Architecture ✅
-- ✅ Domain Layer (entities, value objects)
-- ✅ Application Layer (use cases, services)
-- ✅ Infrastructure Layer (frameworks, I/O)
-
----
-
-## 🎮 Gameplay Tips
-
-1. **Master Double Jump:** Essential for high barriers
-2. **Crouch Early:** Duck under obstacles before they hit you
-3. **Destroy Wood:** Crouching into crates destroys them (+5 points)
-4. **Attack Forward:** Use sword to clear path ahead
-5. **Collect Coins:** Every point counts for high score!
-6. **Speed Management:** Game gets faster - stay focused!
-
----
-
-## 🐛 Known Issues
-
-- None currently! 🎉
-
----
-
-## 📧 Contact
-
-**Author:** [Your Name]  
-**Email:** [your.email@example.com]  
-**Project Link:** [https://github.com/yourusername/runnobi](https://github.com/yourusername/runnobi)
-
----
-
-**Made with ❤️ and ☕ for academic excellence**
