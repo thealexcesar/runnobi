@@ -93,7 +93,7 @@ class MainMenu:
         self.ninja_animation_timer += delta_time
         if self.ninja_animation_timer >= self.ninja_animation_speed:
             self.ninja_animation_timer = 0.0
-            self.ninja_frame = (self.ninja_frame + 1) % 4  # 4 idle frames
+            self.ninja_frame = (self.ninja_frame + 1) % 4
 
     def render(self, screen: pygame.Surface) -> None:
         """
@@ -114,11 +114,6 @@ class MainMenu:
         title_rect = title_text.get_rect(center=(self.screen_width // 2, 150))
         screen.blit(title_text, title_rect)
 
-        # Subtitle
-        # subtitle_text = self.subtitle_font.render("ðŸ¥· Ninja Endless Runner", True, self.text_color)
-        # subtitle_rect = subtitle_text.get_rect(center=(self.screen_width // 2, self.screen_height // 3 + 60))
-        # screen.blit(subtitle_text, subtitle_rect)
-
         # Start button
         button_color = self.button_hover_color if self.button_hovered else self.button_color
         pygame.draw.rect(screen, button_color, self.start_button_rect, border_radius=10)
@@ -132,16 +127,17 @@ class MainMenu:
         # Instructions
         instructions = [
             "Controls:",
-            "SPACE - Jump (double jump!) | DOWN - Crouch",
-            "X/Z - Attack (destroy wooden crates)",
+            "SPACE/W/UP - Jump (double jump available)",
+            "DOWN/S - Crouch (slide under blockers)",
+            "X/Z/LEFT/RIGHT - Attack (destroy crates)",
+            "ESC - Pause",
             "",
-            "💡 Wooden crates are breakable and give points!",
-            "Game speed increases over time!"
+            "Destroy wooden crates: +100 points!"
         ]
 
-        y_offset = self.screen_height - 180
+        y_offset = self.screen_height - 160
         for instruction in instructions:
             text = self.subtitle_font.render(instruction, True, (150, 150, 150))
             text_rect = text.get_rect(center=(self.screen_width // 2, y_offset))
             screen.blit(text, text_rect)
-            y_offset += 30
+            y_offset += 22
